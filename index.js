@@ -34,7 +34,7 @@ fs.readFile('credentials.json', (err, content) => {
   // authorize(JSON.parse(content), listLabels);
   // authorize(JSON.parse(content), listMessages);
   // authorize(JSON.parse(content), getMessage);
-  authorize(JSON.parse(content), testMessage);
+  // authorize(JSON.parse(content), testMessage);
 });
 
 /**
@@ -142,45 +142,46 @@ function getNewToken(oAuth2Client, callback) {
 // }
 
 
-var mailparser = new MailParser([])
+/*****  TEST ******/
+// var mailparser = new MailParser([])
 
-var email = "From: 'Sender Name' <sender@example.com>\r\n" + 
-            "To: 'Receiver Name' <receiver@example.com>\r\n"+
-            "Subject: 'Hello World!\r\n" + "\r\n" 
-            + "How are you today";
+// var email = "From: 'Sender Name' <sender@example.com>\r\n" + 
+//             "To: 'Receiver Name' <receiver@example.com>\r\n"+
+//             "Subject: 'Hello World!\r\n" + "\r\n" 
+//             + "How are you today";
 
-  mailparser.on("end", function(mail_object){
-    console.log("From:", mail_object.from); //[{address:'sender@example.com',name:'Sender Name'}]
-    console.log("Subject:", mail_object.subject); // Hello world!
-    console.log("Text body:", mail_object.text); // How are you today?
-});
+//   mailparser.on("end", function(mail_object){
+//     console.log("From:", mail_object.from); //[{address:'sender@example.com',name:'Sender Name'}]
+//     console.log("Subject:", mail_object.subject); // Hello world!
+//     console.log("Text body:", mail_object.text); // How are you today?
+// });
 
 // send the email source to the parser
-mailparser.write(email);
-mailparser.end();
+// mailparser.write(email);
+// mailparser.end();
 
 
 
-async function testMessage(auth) {
-  const gmail = google.gmail({version: 'v1', auth});
-  const response = await gmail.users.messages.get({
-    userId: 'me',
-    id: "16e90110cc2f3a15",
-  });
+// async function testMessage(auth) {
+//   const gmail = google.gmail({version: 'v1', auth});
+//   const response = await gmail.users.messages.get({
+//     userId: 'me',
+//     id: "16e90110cc2f3a15",
+//   });
 
-  let body = response.data.payload.parts[0].body.data
-  // message_data = response.data.payload.parts.first;
-  // json_data = JSON.parse(message_data.to_json);
-  // decoded_message = Base64.urlsafe_decode64(json_data["body"]["data"]);
-  console.log(Buffer.from(body,'base64').toString());
-}
+//   let body = response.data.payload.parts[0].body.data
+//   // message_data = response.data.payload.parts.first;
+//   // json_data = JSON.parse(message_data.to_json);
+//   // decoded_message = Base64.urlsafe_decode64(json_data["body"]["data"]);
+//   console.log(Buffer.from(body,'base64').toString());
+// }
 
-async function sendMessage(auth){
-  const gmail = google.gmail({version:'v1', auth});
-  const response = await gmail.users.messages.send({
+// async function sendMessage(auth){
+//   const gmail = google.gmail({version:'v1', auth});
+//   const response = await gmail.users.messages.send({
     
-  })
-}
+//   })
+// }
 
 // const labels = await window.gapi.client.gmail.users.labels.get({userId: "me", id: labelIds[0]});
 

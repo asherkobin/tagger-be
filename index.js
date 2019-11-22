@@ -1,9 +1,27 @@
+require('dotenv').config();
 const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
 
+const MailParser = require('mailparser-mit').MailParser
+
+
+const server = require('./api/server.js');
+
+const port = process.env.PORT;
+server.listen(port, () => console.log(`\n** Running on port ${port} **\n`));
+
 // If modifying these scopes, delete token.json.
-const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
+const SCOPES = [
+'https://www.googleapis.com/auth/gmail.readonly', 
+//Read all resources and their metadata—no write operations.
+
+// 'https://www.googleapis.com/auth/gmail.labels',
+//Create, read, update, and delete labels only.
+
+'https://www.googleapis.com/auth/gmail.settings.basic'
+//Manage basic mail settings.
+];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
@@ -106,12 +124,12 @@ function getNewToken(oAuth2Client, callback) {
 //     userId: 'me',
 //   }, (err, res) => {
 //     if (err) return console.log('The API returned an error: ' + err);
-//     const messages = res.data.messages;
+//     const messages = res.data.messages.id;
 //     if (messages.length) {
 //       console.log('');
 //       console.log('Message ID\'s:');
 //       messages.forEach((message) => {
-//         array.push(message.id);
+//         array.push(message);
 //       });
 //       console.log(array);
 //     } else {
@@ -119,18 +137,49 @@ function getNewToken(oAuth2Client, callback) {
 //     }
 //   });
 
-  // const testMessage = gmail.users.messages.get({userId: 'me', id: array[0]})
-  // console.log(testMessage);
+//   const testMessage = gmail.users.messages.get({userId: 'me', id: array[0]})
+//   console.log(testMessage);
 // }
+
+
+var mailparser = new MailParser([])
+
+var email = "From: 'Sender Name' <sender@example.com>\r\n" + 
+            "To: 'Receiver Name' <receiver@example.com>\r\n"+
+            "Subject: 'Hello World!\r\n" + "\r\n" 
+            + "How are you today";
+
+  mailparser.on("end", function(mail_object){
+    console.log("From:", mail_object.from); //[{address:'sender@example.com',name:'Sender Name'}]
+    console.log("Subject:", mail_object.subject); // Hello world!
+    console.log("Text body:", mail_object.text); // How are you today?
+});
+
+// send the email source to the parser
+mailparser.write(email);
+mailparser.end();
+
+
 
 async function testMessage(auth) {
   const gmail = google.gmail({version: 'v1', auth});
   const response = await gmail.users.messages.get({
     userId: 'me',
-    id: '16e85b6dd74b6bf6',
+    id: "16e90110cc2f3a15",
   });
-  
-  console.log(response.data.payload.parts[0].body);
+
+  let body = response.data.payload.parts[0].body.data
+  // message_data = response.data.payload.parts.first;
+  // json_data = JSON.parse(message_data.to_json);
+  // decoded_message = Base64.urlsafe_decode64(json_data["body"]["data"]);
+  console.log(Buffer.from(body,'base64').toString());
+}
+
+async function sendMessage(auth){
+  const gmail = google.gmail({version:'v1', auth});
+  const response = await gmail.users.messages.send({
+    
+  })
 }
 
 // const labels = await window.gapi.client.gmail.users.labels.get({userId: "me", id: labelIds[0]});
@@ -159,4 +208,12 @@ async function testMessage(auth) {
 //   console.log(res.data);
 //   return res.data;
 // };
+
+
+
+
+
+
+
+
 

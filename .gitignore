@@ -71,7 +71,13 @@ public
 .dynamodb/
 # TernJS port file
 .tern-port
+
+#Tagger 
 # Credentials
 credentials.json
 # Token
 token.json
+
+
+
+

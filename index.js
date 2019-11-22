@@ -3,13 +3,8 @@ const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
 
-const MailParser = require('mailparser-mit').MailParser
-
-
 const server = require('./api/server.js');
 
-const port = process.env.PORT;
-server.listen(port, () => console.log(`\n** Running on port ${port} **\n`));
 
 // If modifying these scopes, delete token.json.
 const SCOPES = [
@@ -210,6 +205,9 @@ function getNewToken(oAuth2Client, callback) {
 //   return res.data;
 // };
 
+
+const port = process.env.PORT;
+server.listen(port, () => console.log(`\n** Running on port ${port} **\n`));
 
 
 

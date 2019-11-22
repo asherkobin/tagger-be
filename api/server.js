@@ -1,13 +1,12 @@
 const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
+const testRouter = require('./messages/message-router2')
+const messageRouter = require('./messages/message-router2')
 
 
 require('dotenv').config()
 
-//IMPORT DEFAULT ROUTES
-// const primaryRouter = require('../api/messages')
-// const userRouter = require('../api/')
 
 const server = express()
 
@@ -15,15 +14,13 @@ const server = express()
 server.use(cors())
 server.use(helmet())
 server.use(express.json())
-// server.use(express.urlencoded());
-// server.use(express.multipart());
 
-//INIT SERVER
-server.use(cors)
 
 //ROUTERS
 
 // server.use('/')
+server.use('/test', testRouter)
+server.use('/', messageRouter)
 
 server.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -36,3 +33,5 @@ server.get('/', (req, res)=> {
 })
 
 module.exports = server
+
+

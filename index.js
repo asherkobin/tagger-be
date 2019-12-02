@@ -207,7 +207,7 @@ function getNewToken(oAuth2Client, callback) {
 // };
 
 
-const port = process.env.PORT;
+const port = process.env.PORT || 8000;
 server.listen(port, () => console.log(`\n** Running on port ${port} **\n`));
 
 

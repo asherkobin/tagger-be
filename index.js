@@ -82,6 +82,7 @@ function getNewToken(oAuth2Client, callback) {
   });
 }
 
+
 /**
  * Lists the labels in the user's account.
  *

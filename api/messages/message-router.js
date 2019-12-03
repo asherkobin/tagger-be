@@ -6,7 +6,8 @@ const axios = require("axios");
 
 // TEST GMAIL API CALL ***********
 
-let array = [];
+// global array variable that will hold all the messages as strings
+let messageArray = [];
 
 require('dotenv').config();
 const fs = require('fs');
@@ -92,8 +93,10 @@ router.get('/getTags', (req, res) => {
             userId: 'me',
             id: message.id,
           }, (err, res) => {
+            // searches for messages with the specifc IDs that we found on the previous lines
+            // this if else statement prevents errors from the parts array returning undefined
             if(res.data.payload.parts !== undefined) {
-              array.push(Buffer.from(res.data.payload.parts[0].body.data, 'base64').toString());
+              messageArray.push(Buffer.from(res.data.payload.parts[0].body.data, 'base64').toString());
             } else {
               return null;
             }
@@ -106,9 +109,11 @@ router.get('/getTags', (req, res) => {
   }
 })
 
+// test endpoint to see if messageArray data persists
 router.get('/testGet', (req, res) => {
-  console.log(array);
+  console.log(messageArray);
 })
+
 // END TEST GMAIL API CALL *********
 
 router.post("/", (req, res) => {
@@ -126,7 +131,7 @@ router.post("/", (req, res) => {
        sender:  'sender',
        id:  Math.random()*100,
        subject:  'subject',
-       message:  array[5]
+       message:  messageArray[5]
    }
 
    let testBody = {

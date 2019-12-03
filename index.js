@@ -1,3 +1,4 @@
+// ORIGINAL GMAIL API CALL ****************
 require('dotenv').config();
 const fs = require('fs');
 const readline = require('readline');
@@ -103,8 +104,10 @@ function getNewToken(oAuth2Client, callback) {
 //     } else {
 //       console.log('No labels found.');
 //     }
-//   });
+//  ' });
 // }
+
+// END OF ORIGINAL GMAIL API CALL *******************
 
 /**
  * Lists the messages in the user's account.

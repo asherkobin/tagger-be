@@ -2,12 +2,13 @@
 /*******ORIGINAL ROUTER **********/
 const router = require("express").Router();
 const axios = require("axios");
-// const auth = require('../auth/auth-router')
+const auth = require('../../index')
+
 
 router.post("/", (req, res) => {
  
 //   /******POST REQUEST OPTION 1 *******/
-
+if (auth){
  const {sender, id, subject, message} = req.body
 
   // let postBody = {
@@ -40,7 +41,6 @@ router.post("/", (req, res) => {
     method: "POST"
   };
 
-
   // axios call made 
   axios
     .post(options.hostname + options.path, postBody)
@@ -53,7 +53,7 @@ router.post("/", (req, res) => {
       res.send(err);
     });
 
-
+}
 /******OLDER EXAMPLES BELOW HTTP/RESFUL API*******/
 
 /******POST REQUEST OPTION 1 *******/

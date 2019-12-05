@@ -82,7 +82,6 @@ function getNewToken(oAuth2Client, callback) {
   });
 }
 
-
 /**
  * Lists the labels in the user's account.
  *
@@ -158,19 +157,19 @@ function getNewToken(oAuth2Client, callback) {
 
 
 
-async function testMessage(auth) {
-  const gmail = google.gmail({version: 'v1', auth});
-  const response = await gmail.users.messages.get({
-    userId: 'me',
-    id: "16e90110cc2f3a15",
-  });
+// async function testMessage(auth) {
+//   const gmail = google.gmail({version: 'v1', auth});
+//   const response = await gmail.users.messages.get({
+//     userId: 'me',
+//     id: "16e90110cc2f3a15",
+//   });
 
-  let body = response.data.payload.parts[0].body.data
-  // message_data = response.data.payload.parts.first;
-  // json_data = JSON.parse(message_data.to_json);
-  // decoded_message = Base64.urlsafe_decode64(json_data["body"]["data"]);
-  console.log('***** TES MESSAGE *****',testMessage);
-}
+//   let body = response.data.payload.parts[0].body.data
+//   // message_data = response.data.payload.parts.first;
+//   // json_data = JSON.parse(message_data.to_json);
+//   // decoded_message = Base64.urlsafe_decode64(json_data["body"]["data"]);
+//   console.log(Buffer.from(body,'base64').toString());
+// }
 
 // async function sendMessage(auth){
 //   const gmail = google.gmail({version:'v1', auth});
@@ -207,7 +206,7 @@ async function testMessage(auth) {
 // };
 
 
-const port = process.env.PORT || 8000;
+const port = process.env.PORT;
 server.listen(port, () => console.log(`\n** Running on port ${port} **\n`));
 
 

@@ -1,4 +1,3 @@
-// ****** DEPENDENCIES *********
 const router = require("express").Router();
 const axios = require("axios");
 const {google} = require('googleapis');
@@ -72,7 +71,35 @@ router.post('/postfe', (req, res) => {
       
         oAuth2Client.setCredentials(token);
         callback(oAuth2Client);
-
+      });
+    });
+  }
+  
+  function listMessages(auth) {
+    const gmail = google.gmail({version: 'v1', auth});
+    gmail.users.messages.list({
+      userId: 'me',
+    }, (err, res) => {
+      if (err) return console.log('The API returned an error: ' + err);
+      const messages = res.data.messages;
+      if (messages.length) {
+        console.log('Message ID\'s:', messages);
+        messages.forEach((message) => {
+          gmail.users.messages.get({
+            userId: 'me',
+            id: message.id,
+          }, (err, res) => {
+            // searches for messages with the specifc IDs that we found on the previous lines
+            // this if else statement prevents errors from the parts array returning undefined
+            if(res.data.payload.parts !== undefined) {
+              messageArray.push(Buffer.from(res.data.payload.parts[0].body.data, 'base64').toString());
+            } else {
+              return null;
+            }
+          })
+        });
+      } else {
+        console.log('No messages found.');
       }
 
       // Adds tagger_Labels to user's Gmail account.
@@ -325,21 +352,6 @@ router.post('/postfe', (req, res) => {
         console.error(error)
       })
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

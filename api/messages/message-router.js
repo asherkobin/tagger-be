@@ -79,8 +79,8 @@ router.post('/postfe', (req, res) => {
       function addLabels(auth) {
         const gmail = google.gmail({version: 'v1', auth});
 
-        let taggerLabels = ["tagger_Finance", "tagger_Personal", "tagger_Productivity", "tagger_Promotions", "tagger_Security", "tagger_Shopping", "tagger_Social", "tagger_Other"]
-
+        let taggerLabels = ["tagger_Finance", "tagger_Entertainment", "tagger_Productivity", "tagger_Events", "tagger_Travel", "tagger_Shopping", "tagger_Social", "tagger_Other"]
+        
         taggerLabels.map(label => {
           gmail.users.labels.create(
             {
@@ -166,18 +166,18 @@ router.post('/postfe', (req, res) => {
                       })
                     }
 
-                    if(res.data.tag === "Personal") {
+                    if(res.data.tag === "Entertainment") {
                       gmail.users.labels.list({
                         userId: 'me'
                       }, (err, res) => {
-                        let personal = res.data.labels.find(personal => personal.name === 'tagger_Personal')
+                        let entertainment = res.data.labels.find(entertainment => entertainment.name === 'tagger_Entertainment')
                         gmail.users.messages.modify({
                           userId: 'me',
                           id: idPlaceHolder,
                           resource: 
                           {
                             "addLabelIds": [
-                              personal.id
+                              entertainment.id
                             ]
                           }
                         }), (err, res) => {
@@ -206,18 +206,18 @@ router.post('/postfe', (req, res) => {
                       })
                     }
 
-                    if(res.data.tag === "Security") {
+                    if(res.data.tag === "Events") {
                       gmail.users.labels.list({
                         userId: 'me'
                       }, (err, res) => {
-                        let security = res.data.labels.find(security => security.name === 'tagger_Security')
+                        let events = res.data.labels.find(events => events.name === 'tagger_Events')
                         gmail.users.messages.modify({
                           userId: 'me',
                           id: idPlaceHolder,
                           resource: 
                           {
                             "addLabelIds": [
-                              security.id
+                              events.id
                             ]
                           }
                         }), (err, res) => {
@@ -226,18 +226,18 @@ router.post('/postfe', (req, res) => {
                       })
                     }
 
-                    if(res.data.tag === "Social") {
+                    if(res.data.tag === "Travel") {
                       gmail.users.labels.list({
                         userId: 'me'
                       }, (err, res) => {
-                        let social = res.data.labels.find(social => social.name === 'tagger_Social')
+                        let travel = res.data.labels.find(travel => travel.name === 'tagger_Travel')
                         gmail.users.messages.modify({
                           userId: 'me',
                           id: idPlaceHolder,
                           resource: 
                           {
                             "addLabelIds": [
-                              social.id
+                              travel.id
                             ]
                           }
                         }), (err, res) => {
@@ -266,18 +266,18 @@ router.post('/postfe', (req, res) => {
                       })
                     }
 
-                    if(res.data.tag === "Promotions") {
+                    if(res.data.tag === "Social") {
                       gmail.users.labels.list({
                         userId: 'me'
                       }, (err, res) => {
-                        let promotions = res.data.labels.find(promotions => promotions.name === 'tagger_Promotions')
+                        let social = res.data.labels.find(social => social.name === 'tagger_Social')
                         gmail.users.messages.modify({
                           userId: 'me',
                           id: idPlaceHolder,
                           resource: 
                           {
                             "addLabelIds": [
-                              promotions.id
+                              social.id
                             ]
                           }
                         }), (err, res) => {

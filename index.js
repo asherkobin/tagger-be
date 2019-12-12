@@ -1,3 +1,4 @@
+// ORIGINAL GMAIL API CALL ****************
 require('dotenv').config();
 const fs = require('fs');
 const readline = require('readline');
@@ -82,6 +83,7 @@ function getNewToken(oAuth2Client, callback) {
   });
 }
 
+
 /**
  * Lists the labels in the user's account.
  *
@@ -102,8 +104,10 @@ function getNewToken(oAuth2Client, callback) {
 //     } else {
 //       console.log('No labels found.');
 //     }
-//   });
+//  ' });
 // }
+
+// END OF ORIGINAL GMAIL API CALL *******************
 
 /**
  * Lists the messages in the user's account.
@@ -206,7 +210,7 @@ function getNewToken(oAuth2Client, callback) {
 // };
 
 
-const port = process.env.PORT;
+const port = process.env.PORT || 8000;
 server.listen(port, () => console.log(`\n** Running on port ${port} **\n`));
 
 

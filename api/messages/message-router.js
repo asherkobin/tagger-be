@@ -10,6 +10,7 @@ const destroyer = require('server-destroy');
 require('dotenv').config();
 const fs = require('fs');
 const readline = require('readline');
+const credentials = require('../../credentials.json')
 
 
 // ******* GLOBAL VARIABLES **********
@@ -31,11 +32,12 @@ router.post('/postfe', (req, res) => {
 
   res.status(200).json("TEST RESPONSE");
 
+  const {client_secret, client_id, redirect_uris} = credentials.web;
   axios.post('https://www.googleapis.com/oauth2/v4/token', {
       code: code,
-      client_id: "498525641423-gv4h1poto9mdbdlj7qibo9sf0t4f2231.apps.googleusercontent.com",
-      client_secret: "AGBziX-GP5CKEc9vckgr28I8",
-      redirect_uri: "http://localhost:3000",
+      client_id: client_id,
+      client_secret: client_secret,
+      redirect_uri: redirect_uris[2],
       grant_type: "authorization_code"
     })
     .then((res) => {
@@ -68,7 +70,7 @@ router.post('/postfe', (req, res) => {
       function authorize(credentials, callback) {
         const {client_secret, client_id, redirect_uris} = credentials.web;
         const oAuth2Client = new google.auth.OAuth2(
-          client_id, client_secret, redirect_uris[3]
+          client_id, client_secret, redirect_uris[0]
         );
       
         oAuth2Client.setCredentials(token);

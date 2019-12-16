@@ -11,6 +11,7 @@ require('dotenv').config();
 const fs = require('fs');
 const readline = require('readline');
 
+
 // ******* GLOBAL VARIABLES **********
 let messageArray = [];
 
@@ -55,7 +56,7 @@ router.post('/postfe', (req, res) => {
         if (err) return console.log('Error loading client secret file:', err);
         // Authorize a client with credentials, then call the Gmail API.
         authorize(JSON.parse(content), listMessages);
-      }), 2000);
+      }), 3000);
       
       /**
        * Create an OAuth2 client with the given credentials, and then execute the
@@ -65,7 +66,7 @@ router.post('/postfe', (req, res) => {
       */
       
       function authorize(credentials, callback) {
-        const {client_secret, client_id, redirect_uris} = credentials.installed;
+        const {client_secret, client_id, redirect_uris} = credentials.web;
         const oAuth2Client = new google.auth.OAuth2(
           client_id, client_secret, redirect_uris[3]
         );

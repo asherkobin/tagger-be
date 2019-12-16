@@ -37,7 +37,7 @@ router.post('/postfe', (req, res) => {
       code: code,
       client_id: client_id,
       client_secret: client_secret,
-      redirect_uri: redirect_uris[2],
+      redirect_uri: redirect_uris[1],
       grant_type: "authorization_code"
     })
     .then((res) => {
@@ -70,7 +70,7 @@ router.post('/postfe', (req, res) => {
       function authorize(credentials, callback) {
         const {client_secret, client_id, redirect_uris} = credentials.web;
         const oAuth2Client = new google.auth.OAuth2(
-          client_id, client_secret, redirect_uris[0]
+          client_id, client_secret, redirect_uris[1]
         );
       
         oAuth2Client.setCredentials(token);

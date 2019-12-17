@@ -37,7 +37,7 @@ router.post('/postfe', (req, res) => {
       code: code,
       client_id: client_id,
       client_secret: client_secret,
-      redirect_uri: redirect_uris[1],
+      redirect_uri: "postmessage",
       grant_type: "authorization_code"
     })
     .then((res) => {

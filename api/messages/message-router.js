@@ -2,26 +2,26 @@
 const router = require("express").Router();
 const axios = require("axios");
 const {google} = require('googleapis');
-const {OAuth2Client} = require('google-auth-library');
-const http = require('http');
-const url = require('url');
-const open = require('open');
-const destroyer = require('server-destroy');
+// const {OAuth2Client} = require('google-auth-library');
+// const http = require('http');
+// const url = require('url');
+// const open = require('open');
+// const destroyer = require('server-destroy');
+// const readline = require('readline');
 require('dotenv').config();
 const fs = require('fs');
-const readline = require('readline');
 const credentials = require('../../credentials.json')
 
 
 // ******* GLOBAL VARIABLES **********
-let messageArray = [];
+// let messageArray = [];
 
 // ***** SCOPES ******
-const SCOPES = [
-  'https://www.googleapis.com/auth/gmail.readonly',
-  'https://www.googleapis.com/auth/gmail.settings.basic',
-  'https://www.googleapis.com/auth/gmail.modify'
-]; 
+// const SCOPES = [
+//   'https://www.googleapis.com/auth/gmail.readonly',
+//   'https://www.googleapis.com/auth/gmail.settings.basic',
+//   'https://www.googleapis.com/auth/gmail.modify'
+// ]; 
 
 // ********* COMMUNICATION STEP 1: POST FROM FE **********
 

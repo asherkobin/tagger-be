@@ -45,7 +45,7 @@ In order for the app to function correctly, the user must set up their own envir
 
 create a .env file that includes the following:
     
-    *  credenials.json - this is downloaded from [here](https://console.developers.google.com/) for your specific API.
+  - credenials.json - this is downloaded from [here](https://console.developers.google.com/) for your specific API.
     
 ## Contributing
 
@@ -85,5 +85,5 @@ These contribution guidelines have been adapted from [this good-Contributing.md-
 
 ## Documentation
 
-See [Frontend Documentation](https://github.com/Lambda-School-Labs/tagger-fe/blob/master/README.md) for details on the fronend of our project.
+See [Frontend Documentation](https://github.com/Lambda-School-Labs/tagger-fe/blob/master/README.md) for details on the fronend of our project. <br>
 See [Data Science Documentation](https://github.com/Lambda-School-Labs/tagger-ds/blob/master/README.md) for details on the data science of our project.

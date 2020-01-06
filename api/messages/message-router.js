@@ -34,16 +34,16 @@ router.post('/postfe', (req, res) => {
       let token = res.data;
 
       // Authorize a client with credentials, then call the Gmail API.
-      authorize(JSON.parse(process.env.GOOGLE_CLIENT_SECRET), addLabels);
+      authorize(process.env.GOOGLE_CLIENT_SECRET, addLabels);
     
       // Authorize a client with credentials, then call the Gmail API.
-      setTimeout(() => authorize(JSON.parse(process.env.GOOGLE_CLIENT_SECRET), getLabels), 2000);
+      setTimeout(() => authorize(process.env.GOOGLE_CLIENT_SECRET, getLabels), 2000);
 
       // Authorize a client with credentials, then call the Gmail API.
-      setTimeout(() => authorize(JSON.parse(process.env.GOOGLE_CLIENT_SECRET), getMessageIds), 4000);
+      setTimeout(() => authorize(process.env.GOOGLE_CLIENT_SECRET, getMessageIds), 4000);
 
       // Authorize a client with credentials, then call the Gmail API.
-      setTimeout(() => authorize(JSON.parse(process.env.GOOGLE_CLIENT_SECRET), listMessages), 6000);
+      setTimeout(() => authorize(process.env.GOOGLE_CLIENT_SECRET, listMessages), 6000);
 
       /**
        * Create an OAuth2 client with the given credentials, and then execute the

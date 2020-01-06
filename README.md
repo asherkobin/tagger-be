@@ -1,6 +1,6 @@
 # API Documentation
 
-#### Backend delpoyed at [https://taggerhq.herokuapp.com/] <br>
+#### Backend delpoyed at [Heroku](https://taggerhq.herokuapp.com/) <br>
 
 ## Getting started
 
@@ -14,10 +14,9 @@ To get the server running locally:
 ### NodeJS
 
 -    NodeJS is a lightweight framework.
--    NodeJS is efficient for making API's.
+-    The asynchronous nature of NodeJS makes it efficient for building API's.
 -    NodeJS is easy to learn if you know JavaScript.
 -    Since NodeJS is written in JavaScript, you can use one language for FE and BE.
--    The asynchronous nature of NodeJS is perfect for building API's.
 -    NodeJS scales well. Therefore, future additions may be added to this project by our group or another group at Lambda School.
 
 ## Endpoints for Frontend
@@ -46,7 +45,7 @@ In order for the app to function correctly, the user must set up their own envir
 
 create a .env file that includes the following:
     
-    *  credenials.json - this is downloaded from [https://console.developers.google.com/] for your specific API.
+    *  credenials.json - this is downloaded from [here](https://console.developers.google.com/) for your specific API.
     
 ## Contributing
 
@@ -86,5 +85,5 @@ These contribution guidelines have been adapted from [this good-Contributing.md-
 
 ## Documentation
 
-See [https://github.com/Lambda-School-Labs/tagger-fe/blob/master/README.md] for details on the fronend of our project.
-See [https://github.com/Lambda-School-Labs/tagger-ds/blob/master/README.md] for details on the data science of our project.
+See [Frontend Documentation](https://github.com/Lambda-School-Labs/tagger-fe/blob/master/README.md) for details on the fronend of our project.
+See [Data Science Documentation](https://github.com/Lambda-School-Labs/tagger-ds/blob/master/README.md) for details on the data science of our project.

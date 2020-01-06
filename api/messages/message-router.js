@@ -33,31 +33,18 @@ router.post('/postfe', (req, res) => {
 
       let token = res.data;
 
-      fs.readFile('credentials.json', (err, content) => {
-        if (err) return 'Error loading client secret file:', err;
-        // Authorize a client with credentials, then call the Gmail API.
-        authorize(JSON.parse(content), addLabels);
-      })
+      // Authorize a client with credentials, then call the Gmail API.
+      authorize(JSON.parse(process.env.GOOGLE_CLIENT_SECRET), addLabels);
+    
+      // Authorize a client with credentials, then call the Gmail API.
+      setTimeout(() => authorize(JSON.parse(process.env.GOOGLE_CLIENT_SECRET), getLabels), 2000);
 
-      setTimeout(() => fs.readFile('credentials.json', (err, content) => {
-        if (err) return 'Error loading client secret file:', err;
-        // Authorize a client with credentials, then call the Gmail API.
-        authorize(JSON.parse(content), getLabels);
-      }), 2000);
+      // Authorize a client with credentials, then call the Gmail API.
+      setTimeout(() => authorize(JSON.parse(process.env.GOOGLE_CLIENT_SECRET), getMessageIds), 4000);
 
-      setTimeout(() => fs.readFile('credentials.json', (err, content) => {
-        if (err) return 'Error loading client secret file:', err;
-        // Authorize a client with credentials, then call the Gmail API.
-        authorize(JSON.parse(content), getMessageIds);
-      }), 4000);
+      // Authorize a client with credentials, then call the Gmail API.
+      setTimeout(() => authorize(JSON.parse(process.env.GOOGLE_CLIENT_SECRET), listMessages), 6000);
 
-      setTimeout(() => fs.readFile('credentials.json', (err, content) => {
-        if (err) return 'Error loading client secret file:', err;
-        // Authorize a client with credentials, then call the Gmail API.
-        authorize(JSON.parse(content), listMessages);
-      }), 6000);
-
-      // Authorizes the API from credentials.json
       /**
        * Create an OAuth2 client with the given credentials, and then execute the
        * given callback function.
@@ -65,9 +52,8 @@ router.post('/postfe', (req, res) => {
        * @param {function} callback The callback to call with the authorized client.
       */
       function authorize(credentials, callback) {
-        const { client_secret, client_id, redirect_uris } = credentials.web;
         const oAuth2Client = new google.auth.OAuth2(
-          client_id, client_secret, redirect_uris[1]
+          process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, "postmessage"
         );
 
         oAuth2Client.setCredentials(token);

@@ -5,7 +5,6 @@ const { google } = require('googleapis');
 const { OAuth2Client } = require('google-auth-library');
 require('dotenv').config();
 const fs = require('fs');
-const credentials = require('../../credentials.json');
 const rateLimit = require('axios-rate-limit');
 
 

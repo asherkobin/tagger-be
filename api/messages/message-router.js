@@ -23,11 +23,10 @@ router.post('/postfe', (req, res) => {
 
   res.status(200).json("TEST RESPONSE");
 
-  const { client_secret, client_id, redirect_uris } = credentials.web;
   axios.post('https://www.googleapis.com/oauth2/v4/token', {
     code: code,
-    client_id: client_id,
-    client_secret: client_secret,
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    client_secret: process.env.GOOGLE_CLIENT_SECRET,
     redirect_uri: "postmessage",
     grant_type: "authorization_code"
   })

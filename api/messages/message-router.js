@@ -129,7 +129,7 @@ router.post('/postfe', (req, res) => {
               if (payload.parts !== undefined) {
                 let message = Buffer.from(payload.parts[0].body.data, 'base64').toString();
                 
-                http.post('LstmModel-env.4zqtqnkaex.us-east-1.elasticbeanstalk.com', {
+                http.post('LstmModel-env.4zqtqnkaex.us-east-1.elasticbeanstalk.com/api/tags', {
                   sender: sender.value,
                   id: idPlaceHolder,
                   subject: subject.value,

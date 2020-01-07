@@ -4,7 +4,6 @@ const axios = require("axios");
 const { google } = require('googleapis');
 const { OAuth2Client } = require('google-auth-library');
 require('dotenv').config();
-const fs = require('fs');
 const rateLimit = require('axios-rate-limit');
 
 
@@ -24,8 +23,8 @@ router.post('/postfe', (req, res) => {
 
   axios.post('https://www.googleapis.com/oauth2/v4/token', {
     code: code,
-    client_id: process.env.GOOGLE_CLIENT_ID,
-    client_secret: process.env.GOOGLE_CLIENT_SECRET,
+    client_id: process.env.GOOGLE_CLIENT_ID, // GOOGLE_CLIENT_ID is from the heroku config vars
+    client_secret: process.env.GOOGLE_CLIENT_SECRET, // GOOGLE_CLIENT_SECRET is from the heroku config vars
     redirect_uri: "postmessage",
     grant_type: "authorization_code"
   })
@@ -33,25 +32,20 @@ router.post('/postfe', (req, res) => {
 
       let token = res.data;
 
-      // Authorize a client with credentials, then call the Gmail API.
-      authorize(process.env.GOOGLE_CLIENT_SECRET, addLabels);
+      // Authorize a client, then call the Gmail API.
+      authorize(addLabels);
     
-      // Authorize a client with credentials, then call the Gmail API.
-      setTimeout(() => authorize(process.env.GOOGLE_CLIENT_SECRET, getLabels), 2000);
+      // Authorize a client, then call the Gmail API.
+      setTimeout(() => authorize(getLabels), 2000);
 
-      // Authorize a client with credentials, then call the Gmail API.
-      setTimeout(() => authorize(process.env.GOOGLE_CLIENT_SECRET, getMessageIds), 4000);
+      // Authorize a client, then call the Gmail API.
+      setTimeout(() => authorize(getMessageIds), 4000);
 
-      // Authorize a client with credentials, then call the Gmail API.
-      setTimeout(() => authorize(process.env.GOOGLE_CLIENT_SECRET, listMessages), 6000);
+      // Authorize a client, then call the Gmail API.
+      setTimeout(() => authorize(listMessages), 6000);
 
-      /**
-       * Create an OAuth2 client with the given credentials, and then execute the
-       * given callback function.
-       * @param {Object} credentials The authorization client credentials.
-       * @param {function} callback The callback to call with the authorized client.
-      */
-      function authorize(credentials, callback) {
+      // process.env.GOOGLE_CLIENT_ID and process.env.GOOGLE_CLIENT_SECRET are from the heroku config vars
+      function authorize(callback) {
         const oAuth2Client = new google.auth.OAuth2(
           process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, "postmessage"
         );

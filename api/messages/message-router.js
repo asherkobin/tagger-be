@@ -19,7 +19,7 @@ router.post('/postfe', (req, res) => {
 
   let code = req.body.code;
 
-  res.status(200).json("Sucessfully hit /postfe endpoint");
+  res.status(200).json("Successfully hit /postfe endpoint");
 
   axios.post('https://www.googleapis.com/oauth2/v4/token', {
     code: code,

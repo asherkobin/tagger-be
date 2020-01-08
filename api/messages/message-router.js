@@ -10,7 +10,7 @@ const rateLimit = require('axios-rate-limit');
 // ******* GLOBAL VARIABLES **********
 let responseLabels = "";
 let messages = "";
-const http = rateLimit(axios.create(), { maxRequests: 3, perMilliseconds: 1000, maxRPS: 3 });
+const http = rateLimit(axios.create(), { maxRequests: 1, perMilliseconds: 1750 });
 http.getMaxRPS();
 
 
@@ -129,7 +129,7 @@ router.post('/postfe', (req, res) => {
               if (payload.parts !== undefined) {
                 let message = Buffer.from(payload.parts[0].body.data, 'base64').toString();
                 
-                http.post('http://tagged.us-east-2.elasticbeanstalk.com/api/tags', {
+                http.post('http://LstmModel-env.4zqtqnkaex.us-east-1.elasticbeanstalk.com/api/tags', {
                   sender: sender.value,
                   id: idPlaceHolder,
                   subject: subject.value,

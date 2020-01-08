@@ -1,3 +1,13 @@
+## Contributors
+
+|[Quinton McNamee](https://github.com/QuintonMcNamee) |  
+[Edwin Parker](https://github.com/weparkerjr) |  
+[Marcus Jones](https://github.com/jonesy212) |  
+| :-----------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------: |
+| [<img src= width = ![image info](./img/quinton.png) "200" />](https://github.com/QuintonMcNamee) | [<img src="https://ca.slack-edge.com/T4JUEB3ME-UKRLVL2GJ-5ff828f976fb-512" width = "200" />](https://github.com/weparkerjr) | [<img src="https://ca.slack-edge.com/T4JUEB3ME-UJB5Y3VS4-52dc043b8f1e-512" width = "200" />](https://github.com/jonesy212) |  
+|[<img src="https://github.com/favicon.ico" width="15"> ](https://github.com/QuintonMcNamee) | [<img src="https://github.com/favicon.ico" width="15"> ](https://github.com/weparkerjr) | [<img src="https://github.com/favicon.ico" width="15"> ](https://github.com/jonesy212) |
+| [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://github.com/QuintonMcNamee) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://github.com/weparkerjr) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/marcus-jones-0227a66b/) |
+
 # API Documentation
 
 #### Backend delpoyed at [Heroku](https://taggerhq.herokuapp.com/) <br>
@@ -13,19 +23,19 @@ To get the server running locally:
 
 ### NodeJS
 
--    NodeJS is a lightweight framework.
--    The asynchronous nature of NodeJS makes it efficient for building API's.
--    NodeJS is easy to learn if you know JavaScript.
--    Since NodeJS is written in JavaScript, you can use one language for FE and BE.
--    NodeJS scales well. Therefore, future additions may be added to this project by our group or another group at Lambda School.
+- NodeJS is a lightweight framework.
+- The asynchronous nature of NodeJS makes it efficient for building API's.
+- NodeJS is easy to learn if you know JavaScript.
+- Since NodeJS is written in JavaScript, you can use one language for FE and BE.
+- NodeJS scales well. Therefore, future additions may be added to this project by our group or another group at Lambda School.
 
 ## Endpoints for Frontend
 
 #### Routes
 
-| Method | Endpoint                | Access Control | Description                                  |
-| ------ | ----------------------- | -------------- | -------------------------------------------- |
-| POST    | `/postfe` | Frontend Team      | Post for frontend to pass the user's login information to backend. |
+| Method | Endpoint  | Access Control | Description                                                        |
+| ------ | --------- | -------------- | ------------------------------------------------------------------ |
+| POST   | `/postfe` | Frontend Team  | Post for frontend to pass the user's login information to backend. |
 
 # Data Model
 
@@ -44,9 +54,9 @@ To get the server running locally:
 In order for the app to function correctly, the user must set up their own environment variables.
 
 create a .env file that includes the following:
-    
-  - credenials.json - this is downloaded from [here](https://console.developers.google.com/) for your specific API.
-    
+
+- credenials.json - this is downloaded from [here](https://console.developers.google.com/) for your specific API.
+
 ## Contributing
 
 When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with the owners of this repository before making a change.
@@ -55,11 +65,12 @@ Please note we have a [code of conduct](./code_of_conduct.md). Please follow it 
 
 ### Issue/Bug Request
 
- **If you are having an issue with the existing project code, please submit a bug report under the following guidelines:**
- - Check first to see if your issue has already been reported.
- - Check to see if the issue has recently been fixed by attempting to reproduce the issue using the latest master branch in the repository.
- - Create a live example of the problem.
- - Submit a detailed bug report including your environment & browser, steps to reproduce the issue, actual and expected outcomes,  where you believe the issue is originating from, and any potential solutions you have considered.
+**If you are having an issue with the existing project code, please submit a bug report under the following guidelines:**
+
+- Check first to see if your issue has already been reported.
+- Check to see if the issue has recently been fixed by attempting to reproduce the issue using the latest master branch in the repository.
+- Create a live example of the problem.
+- Submit a detailed bug report including your environment & browser, steps to reproduce the issue, actual and expected outcomes, where you believe the issue is originating from, and any potential solutions you have considered.
 
 ### Feature Requests
 

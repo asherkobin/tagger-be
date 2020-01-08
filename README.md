@@ -4,9 +4,9 @@
 [Edwin Parker](https://github.com/weparkerjr) |  
 [Marcus Jones](https://github.com/jonesy212) |  
 | :-----------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------: |
-| [<img src='./img/quinton.png' width='200'/>(https://github.com/QuintonMcNamee) | [<img src="https://ca.slack-edge.com/T4JUEB3ME-UKRLVL2GJ-5ff828f976fb-512" width = "200" />](https://github.com/weparkerjr) | [<img src="https://ca.slack-edge.com/T4JUEB3ME-UJB5Y3VS4-52dc043b8f1e-512" width = "200" />](https://github.com/jonesy212) |  
+| [<img src='./img/quinton.png' width='200'/>] | [<img src="./img/edwin.png" width = "200" />](https://github.com/weparkerjr) | [<img src=".img/marcus.png" width = "200" />](https://github.com/jonesy212) |  
 |[<img src="https://github.com/favicon.ico" width="15"> ](https://github.com/QuintonMcNamee) | [<img src="https://github.com/favicon.ico" width="15"> ](https://github.com/weparkerjr) | [<img src="https://github.com/favicon.ico" width="15"> ](https://github.com/jonesy212) |
-| [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://github.com/QuintonMcNamee) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://github.com/weparkerjr) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/marcus-jones-0227a66b/) |
+| [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/quinton-mcnamee/) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/edwin-parker-664387163/) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/marcus-jones-0227a66b/) |
 
 # API Documentation
 

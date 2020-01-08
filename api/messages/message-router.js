@@ -10,7 +10,7 @@ const rateLimit = require('axios-rate-limit');
 // ******* GLOBAL VARIABLES **********
 let responseLabels = "";
 let messages = "";
-const http = rateLimit(axios.create(), { maxRequests: 1, perMilliseconds: 2000 });
+const http = rateLimit(axios.create(), { maxRequests: 1, perMilliseconds: 1000 });
 http.getMaxRPS();
 
 

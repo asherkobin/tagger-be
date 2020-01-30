@@ -1,136 +1,132 @@
-const router = require("express").Router();
-const axios = require("axios");
- 
-router.post("/", (req, res) => {
- 
- const {label} = req.body
+// const router = require("express").Router();
+// const axios = require("axios");
 
- let testBody = {
+// router.post("/", (req, res) => {
+//   const { label } = req.body;
 
-    label: label,
-    userId: id,
-  }
+//   let testBody = {
+//     label: label,
+//     userId: id
+//   };
 
-   let makeTag = {
-    //Enter in
-       label: label,
-       userId: id,
-   }
-  
-  // An object of options to indicate url, path, object of headers
-  // and the method (CRUD OPERATIONS EX: "DELETE")
-  console.log("hello");
-  var options = {
-    hostname: "http://tagger-email.us-east-2.elasticbeanstalk.com/",
-    path: "api/tags",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    method: "POST"
-  };
+//   // let makeTag = {
+//   //   //Enter in
+//   //   label: label,
+//   //   userId: id
+//   // };
 
-  //create axios call to be able to post to url
-  axios
-    .post(options.hostname + options.path, testBody)
-    .then(result => {
-      console.log(result.data);
-      res.send(result.data);
-    })
-    .catch(err => {
-      console.log(err);
-      res.send(err.stack);
-    });
-});
+//   // An object of options to indicate url, path, object of headers
+//   // and the method (CRUD OPERATIONS EX: "DELETE")
+//   console.log("hello");
+//   var options = {
+//     hostname: "http://tagger-email.us-east-2.elasticbeanstalk.com/",
+//     path: "api/tags",
+//     headers: {
+//       "Content-Type": "application/json"
+//     },
+//     method: "POST"
+//   };
 
-module.exports = router;
+//   //create axios call to be able to post to url
+//   axios
+//     .post(options.hostname + options.path, testBody)
+//     .then(result => {
+//       console.log(result.data);
+//       res.send(result.data);
+//     })
+//     .catch(err => {
+//       console.log(err);
+//       res.send(err.stack);
+//     });
+// });
 
-// var x = add(3,3,2,10)
+// module.exports = router;
 
-// function add(a,b,c,d){
-//  return a * b/c * d
+// // var x = add(3,3,2,10)
 
-// }
-// console.log(x);
+// // function add(a,b,c,d){
+// //  return a * b/c * d
 
-// const cars = [{make: "infiniti", model: "vs", l: "lon-cab"},
-//               {make: "toyota", model: "I9", l: "short cab"}]
+// // }
+// // console.log(x);
 
-// console.log(cars)
-// console.log(cars[0].make);
+// // const cars = [{make: "infiniti", model: "vs", l: "lon-cab"},
+// //               {make: "toyota", model: "I9", l: "short cab"}]
 
-// //object
-// let person = [{
-//   name:'Marcus',
-//   city:'Rules',
-//   state: 'Texas',
-// },]
+// // console.log(cars)
+// // console.log(cars[0].make);
 
-// if(person.name == 'Michael'){
-// console.log(`Hello ${person.name} `)
-// } else {
-//   console.log(`This isn't Marcus`)
-// }
-// // [  make {'Honda', 
-// //   'Toyota'}
-// // ]
+// // //object
+// // let person = [{
+// //   name:'Marcus',
+// //   city:'Rules',
+// //   state: 'Texas',
+// // },]
 
-// let newPerson = person
+// // if(person.name == 'Michael'){
+// // console.log(`Hello ${person.name} `)
+// // } else {
+// //   console.log(`This isn't Marcus`)
+// // }
+// // // [  make {'Honda',
+// // //   'Toyota'}
+// // // ]
 
-// newPerson.push({name:'John',
-// city:'Rules',
-// state: 'Texas',
-// zip: '73505'})
-// console.log(person)
+// // let newPerson = person
 
+// // newPerson.push({name:'John',
+// // city:'Rules',
+// // state: 'Texas',
+// // zip: '73505'})
+// // console.log(person)
 
-// newPerson[0].state = "Japan"
-// console.log('begin')
-// console.log({person, newPerson})
+// // newPerson[0].state = "Japan"
+// // console.log('begin')
+// // console.log({person, newPerson})
 
-// if(person[1].state === newPerson)
-// {
-//     console.log({person, newPerson})
-//   }else{
-//     console.log("Must use different name")
-// }
+// // if(person[1].state === newPerson)
+// // {
+// //     console.log({person, newPerson})
+// //   }else{
+// //     console.log("Must use different name")
+// // }
 
-// let numberOfCars = 0
-// cars.forEach(  (car,index) =>  {
-//   numberOfCars++;
-//   console.log('****CAR*****',car.make)
-// })
-// console.log("number of cars", numberOfCars)
+// // let numberOfCars = 0
+// // cars.forEach(  (car,index) =>  {
+// //   numberOfCars++;
+// //   console.log('****CAR*****',car.make)
+// // })
+// // console.log("number of cars", numberOfCars)
 
-// for (let i = 0; i < cars.length; i++){
-//   console.log('cars',cars[i])
-//   console.log('make',cars[i].make)
-// }
+// // for (let i = 0; i < cars.length; i++){
+// //   console.log('cars',cars[i])
+// //   console.log('make',cars[i].make)
+// // }
 
-// let numbefOfPeople = 0
-// for (let i = 0; i < person.length && newPerson.length; i++){
-//   console.log('person', person[i])
-//   console.log("number of people", numbefOfPeople)
-// }
+// // let numbefOfPeople = 0
+// // for (let i = 0; i < person.length && newPerson.length; i++){
+// //   console.log('person', person[i])
+// //   console.log("number of people", numbefOfPeople)
+// // }
 
+// // const ret = [
+// //   { name: "Melvin", age: "27", height: "6,2", hairColor: "black" },
+// //   { name: "Mike", age: "31", height: "4'11", hairColor: "blonde" }
+// // ];
+// // for (r = 0; r < r.length; r++) {
+// //   if (ret[r] === ret[n]) {
+// //     console.log(r);
+// //     ret.splice(n--, 1);
+// //     break;
+// //   }
+// //   return ret;
+// //   console.log(ret);
+// // }
 
-const ret = [
-  { name: "Melvin", age: "27", height: "6,2", hairColor: "black" },
-  { name: "Mike", age: "31", height: "4'11", hairColor: "blonde" }
-];
-for (r = 0; r < r.length; r++) {
-  if (ret[r] === ret[n]) {
-    console.log(r);
-    ret.splice(n--, 1);
-    break;
-  }
-  return ret;
-  console.log(ret);
-}
-
-const books = [{color: "yellow", author: ""}]
- function retuning(target){
-  let i = 0,
-  targets = jQuery(target, this),
-  l  = targets.length
-}
-console.log(retuning)
+// // const books = [{color: "yellow", author: ""}]
+// //  function retuning(target){
+// //   let i = 0,
+// //   targets = jQuery(target, this),
+// //   l  = targets.length
+// // }
+// // console.log(retuning)

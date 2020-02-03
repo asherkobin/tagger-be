@@ -19,7 +19,7 @@ const http = rateLimit(axios.create(), {
 http.getMaxRPS();
 
 // ********* THE NEW ROUTE WITH IMAP ************
-route.post("/testimap", (req, res) => {
+route.post("/", (req, res) => {
   const { email, host, token } = req.body;
 
   var imap = new Imap({
@@ -46,8 +46,6 @@ route.post("/testimap", (req, res) => {
     }
   });
 
-
-
   function openInbox(cb) {
     imap.openBox("INBOX", true, cb);
   }
@@ -68,14 +66,11 @@ route.post("/testimap", (req, res) => {
               newMessages = [];
               for (let emailId of emailsIds) {
                 if (parsed.messageId === emailId) {
-                  let newObj = {
-                    
-                  }
+                  let newObj = {};
                   newMessages.push(newObj);
                 } else {
-                  
                 }
-                console.log(parsed.messageId === emailsIds)
+                console.log(parsed.messageId === emailsIds);
               }
               // // results to emailsIds.
               //  seqno.parsed.text

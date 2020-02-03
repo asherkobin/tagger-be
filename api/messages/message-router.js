@@ -46,6 +46,8 @@ route.post("/testimap", (req, res) => {
     }
   });
 
+
+
   function openInbox(cb) {
     imap.openBox("INBOX", true, cb);
   }
@@ -62,8 +64,22 @@ route.post("/testimap", (req, res) => {
           simpleParser(stream, { bodies: "" })
             .then(parsed => {
               console.log("\n\n\nparsed: ", parsed.text);
+              // oldMessages = [];
+              newMessages = [];
+              for (let emailId of emailsIds) {
+                if (parsed.messageId === emailId) {
+                  let newObj = {
+                    
+                  }
+                  newMessages.push(newObj);
+                } else {
+                  
+                }
+                console.log(parsed.messageId === emailsIds)
+              }
+              // // results to emailsIds.
+              //  seqno.parsed.text
               // test what results exist in database.  send the nonexisting results to datascience to be tagged.  add tag point to message id that points to user.
-
               // console.log(parsed.headers)
               // console.log(parsed.)
             })

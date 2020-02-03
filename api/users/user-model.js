@@ -19,6 +19,7 @@ function addUser(user) {
 
 function findUser(user) {
   return db("users")
+    .select("id")
     .where("email", "=", user)
     .first();
 }

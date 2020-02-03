@@ -14,7 +14,7 @@ server.use(express.json());
 
 //ROUTERS
 
-server.use("/", messageRouter);
+server.use("/emails", messageRouter);
 
 //Use server function
 server.use(function(req, res, next) {

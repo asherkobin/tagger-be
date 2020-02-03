@@ -6,6 +6,8 @@ require("dotenv").config();
 const rateLimit = require("axios-rate-limit");
 var Imap = require("imap");
 const simpleParser = require("mailparser").simpleParser;
+const Users = require("../users/user-model");
+const Messages = require("./message-model");
 
 // ******* GLOBAL VARIABLES **********
 let responseLabels = "";
@@ -32,6 +34,17 @@ route.post("/testimap", (req, res) => {
   });
 
   // first we need to see if that email exist in our database (if it does move on else we need to add it)
+  Users.findUser(email).then(user => {
+    const emailsIds = [];
+    if (user) {
+      Messages.getEmailIds(user).then(ids => {
+        emailsIds = ids;
+        return emailsIds;
+      });
+    } else {
+      Users.addUser(email);
+    }
+  });
 
   function openInbox(cb) {
     imap.openBox("INBOX", true, cb);

@@ -1,30 +1,19 @@
-// // cons db = require('')
+const db = require("../../data/dbConfig.js");
 
+module.exports = {
+  getEmailIds,
+  addEmails,
+  deleteAllEmailsByUser
+};
 
-// module.exports = {
-//     findAll,
-//     findById,
-//     remove,
-//     add,
-// }
+function getEmailIds(userId) {
+  return db("emails")
+    .select("id")
+    .where("user_id", userId);
+}
 
-// function findAll(){
-//     return db('messages').select()
-// }
-
-// function findById(id){
-//     console.log(id)
-//     user_id = id;
-//     return db(`messages as m`)
-//     .select('m.messageId')
-//     .where({message_id})
-//     .first();
-// }
-
-// function remove(id){
-//     return db('messages')
-//     .where({id})
-//     .first()
-//     .delete();
-// }
-
+function deleteAllEmailsByUser(userId) {
+  return db("emails")
+    .where("user_id", userId)
+    .del();
+}

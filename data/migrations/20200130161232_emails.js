@@ -1,6 +1,6 @@
 exports.up = function(knex) {
   return knex.schema
-    .createTable("emails", tbl => {
+    .createTable("users", tbl => {
       tbl.increments();
 
       tbl
@@ -8,13 +8,31 @@ exports.up = function(knex) {
         .notNullable()
         .unique();
     })
+    .createTable("emails", tbl => {
+      tbl.increments();
+
+      tbl
+        .integer("message_id")
+        .notNullable()
+        .unique();
+
+      tbl
+        .integer("user_id")
+        .unsigned()
+        .notNullable()
+        .references("id")
+        .inTable("users")
+        .onDelete("RESTRICT")
+        .onUpdate("CASCADE");
+    })
+
     .createTable("tags", tbl => {
       tbl.increments();
 
       tbl.string("tag");
 
       tbl
-        .integer("user_id")
+        .integer("email_id")
         .unsigned()
         .notNullable()
         .references("id")
@@ -25,5 +43,8 @@ exports.up = function(knex) {
 };
 
 exports.down = function(knex) {
-  return knex.schema.dropTableIfExists("tags").dropTableIfExists("emails");
+  return knex.schema
+    .dropTableIfExists("tags")
+    .dropTableIfExists("emails")
+    .dropTableIfExists("users");
 };

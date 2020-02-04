@@ -6,15 +6,23 @@ module.exports = {
   deleteAllEmailsByUser,
   getTagsForMessage,
   getMessageTags,
-  get
+  get,
+  findEmailbyId
 };
-
-function addEmail(email) {
+function findEmailbyId(id){
   return db("emails")
-    .insert(email, "id")
-    .then(ids => {
-      return ids;
-    });
+  .where({ id })
+  .first()
+}
+async function addEmail(email) {
+  const [id] = await db('emails').insert(email, "id")
+
+  return findEmailbyId(id)
+  // return db("emails")
+  //   .insert(email, "id")
+  //   .then(ids => {
+  //     return ids;
+  //   });
 }
 
 function getEmailIds(userId) {

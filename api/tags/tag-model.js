@@ -32,7 +32,7 @@ function getTagsByMessageId(messageId) {
   return db("tags")
     .join("emails", "emails.id", "tags.email_id")
     .select("tags.tag")
-    .where("emails.message_id", messageId)
+    .where("emails.message_id", messageId);
 }
 function updateTag(id, changes) {
   return db("tags")

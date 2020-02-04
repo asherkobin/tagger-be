@@ -5,7 +5,8 @@ module.exports = {
   findTagById,
   updateTag,
   deleteTag,
-  addTag
+  addTag,
+  getTagsByMessageId
 };
 
 function addTag(tag) {
@@ -16,16 +17,22 @@ function addTag(tag) {
       return findTagById(id);
     });
 }
-function findTags(tag) {
-  return db("tags")
-    .select("*")
-    .where("tag", "=", tag)
-    .first();
+
+function findTags() {
+  return db("tags");
 }
+
 function findTagById(id) {
   return db("tags")
     .select("*")
-    .where({ id }).first;
+    .where({ id })
+    .first();
+}
+function getTagsByMessageId(messageId) {
+  return db("tags")
+    .join("emails", "emails.id", "tags.email_id")
+    .select("tags.tag")
+    .where("emails.message_id", messageId)
 }
 function updateTag(id, changes) {
   return db("tags")
@@ -35,6 +42,7 @@ function updateTag(id, changes) {
       return findTagById(id);
     });
 }
+
 function deleteTag(id) {
   return db("tags")
     .where({ id })

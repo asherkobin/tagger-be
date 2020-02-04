@@ -65,6 +65,9 @@ router.post("/", (req, res) => {
               })
               .catch(err => {
                 console.log("\n\n\nerr: ", err);
+                res.status(500).json({
+                  message: "Server was unable to help you, good luck!"
+                });
               });
           });
           msg.once("attributes", function(attrs) {
@@ -119,8 +122,8 @@ router.post("/tags", (req, res) => {
 
   // first we need to see if that email exist in our database (if it does move on else we need to add it)
   let userId;
+  const emailsIds = [];
   Users.findUser(email).then(user => {
-    const emailsIds = [];
     if (user) {
       Messages.getEmailIds(user).then(ids => {
         emailsIds = ids;
@@ -128,7 +131,10 @@ router.post("/tags", (req, res) => {
         return emailsIds, userId;
       });
     } else {
-      Users.addUser(email).then(user => {
+      const emailObj = {
+        email
+      };
+      Users.addUser(emailObj).then(user => {
         return (userId = user.id);
       });
     }
@@ -179,7 +185,6 @@ router.post("/tags", (req, res) => {
                 for (let emailId of emailsIds) {
                   if (parsed.messageId !== emailId) {
                     //Sending the new message to DS for tagging
-                    // why is it an http and not axios for tags?
                     http
                       .post(
                         "http://LstmModel-env.4zqtqnkaex.us-east-1.elasticbeanstalk.com/api/tags",
@@ -191,6 +196,7 @@ router.post("/tags", (req, res) => {
                         }
                       )
                       .then(res => {
+                        console.log(res, "res");
                         let sqlEmailId;
                         let addEmailObj = {
                           message_id: parsed.messageId,
@@ -204,21 +210,35 @@ router.post("/tags", (req, res) => {
                           tag.email_id = sqlEmailId;
                         });
                         Tags.addTag(tags);
-                        console.log(parsed.attachments);
-                        // now time to create an object and push it to allMessages array.
-                        // things we will need for this object.  an array of tags the message from
-                        // from messageId subject text attachments
+                        const newObj = {
+                          html: parsed.html,
+                          text: parsed.text,
+                          from: parsed.from,
+                          subject: parsed.subject,
+                          attachments: parsed.attachments,
+                          id: parsed.messageId,
+                          tags: dataTag
+                        };
+                        allMessages.push(newObj);
+                      })
+                      .catch(err => {
+                        console.log(err, "err");
                       });
                   } else {
-                    // this is where we will need to pull tags that match the messageid and then
-                    // create the object. read the notes above about object contents and push to allMessages.
+                    Tags.findTagByMessageId(parsed.messageId).then(tags => {
+                      const newObj = {
+                        html: parsed.html,
+                        text: parsed.text,
+                        from: parsed.from,
+                        subject: parsed.subject,
+                        attachments: parsed.attachments,
+                        id: parsed.messageId,
+                        tags
+                      };
+                      allMessages.push(newObj);
+                    });
                   }
                 }
-                // // results to emailsIds.
-                //  seqno.parsed.text
-                // test what results exist in database.  send the nonexisting results to datascience to be tagged.  add tag point to message id that points to user.
-                // console.log(parsed.headers)
-                // console.log(parsed.)
               })
               .catch(err => {
                 console.log("\n\n\nerr: ", err);
@@ -231,18 +251,16 @@ router.post("/tags", (req, res) => {
             console.log(prefix + "Finished");
           });
         });
-      });
-      f.once("error", function(err) {
-        console.log("Fetch error: " + err);
-      });
-      f.once("end", function() {
-        console.log("Done fetching all messages!");
-        imap.end();
+        f.once("error", function(err) {
+          console.log("Fetch error: " + err);
+        });
+        f.once("end", function() {
+          console.log("Done fetching all messages!");
+          res.status(200).json(allMessages);
+          imap.end();
+        });
       });
     });
-
-    // this is where we will do res.status() and return the allMessages array for the front end.
-    // the allMessages array is an object of emails.
   });
 
   imap.once("error", function(err) {

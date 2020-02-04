@@ -78,7 +78,7 @@ credentials.json
 # Token
 token.json
 
-
+*.db3
 
 
 node_modules

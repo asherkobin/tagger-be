@@ -8,6 +8,7 @@ var Imap = require("imap");
 const simpleParser = require("mailparser").simpleParser;
 const Users = require("../users/user-model");
 const Messages = require("./message-model");
+const Tags = require("../tags/tag-model");
 
 // ******* GLOBAL VARIABLES **********
 let responseLabels = "";
@@ -34,15 +35,19 @@ route.post("/", (req, res) => {
   });
 
   // first we need to see if that email exist in our database (if it does move on else we need to add it)
+  let userId;
   Users.findUser(email).then(user => {
     const emailsIds = [];
     if (user) {
       Messages.getEmailIds(user).then(ids => {
         emailsIds = ids;
-        return emailsIds;
+        userId = user.id;
+        return emailsIds, userId;
       });
     } else {
-      Users.addUser(email);
+      Users.addUser(email).then(user => {
+        return (userId = user.id);
+      });
     }
   });
 
@@ -62,12 +67,64 @@ route.post("/", (req, res) => {
           simpleParser(stream, { bodies: "" })
             .then(parsed => {
               console.log("\n\n\nparsed: ", parsed.text);
+              //step 0 get all email's messageid from backend
+              //step 1 getting all emails
+              //step 2 checking if emails are already in database by messageid
+              //***Either handle comparision with JS or SQL
+              //***SQL has no error handling, but is simpler to do(ANTI JOIN)
+              //***JS can be messed up easily to take longer
+              //step 3 sending all new emails(one at a time) to ds for tagging
+              //step 4 saving data(tags/messageid) ds sends back to database
+              //step 5 adding all tags to emails
+              //step 6 sending all tagged emails to frontend
+
+              /* the problem i see with SQL is I don't believe we can pick and choose which 
+              messageid's (we can't go thru all of them grab the ids and then decide we want to 
+              go back to the first message that would have to be another call to open the inbox/
+              stream *FROM WHAT I UNDERSTAND*) the only way to do something like this would be to
+              store the data as it comes in.  so we have to test each id individually and then 
+              decide what to do or store them in 2 arrays 1 for already done and 1 for need to 
+              be done.  
+
+              Another solution could be have 1 array for now because DS is not accepting more 
+              then 1 message at a time to be tagged.  When we run into a message that needs to 
+              be tagged it gets sent to DS when it returns a tag we add to DB and finally add to 
+              the array that gets sent to the FE. */
+
               // oldMessages = [];
               newMessages = [];
               for (let emailId of emailsIds) {
-                if (parsed.messageId === emailId) {
-                  let newObj = {};
-                  newMessages.push(newObj);
+                if (parsed.messageId !== emailId) {
+                  //Sending the new message to DS for tagging
+                  // why is it an http and not axios for tags?
+                  http
+                    .post(
+                      "http://LstmModel-env.4zqtqnkaex.us-east-1.elasticbeanstalk.com/api/tags",
+                      {
+                        sender: parsed.from,
+                        id: parsed.messageId,
+                        subject: parsed.subject,
+                        message: parsed.text
+                      }
+                    )
+                    .then(res => {
+                      let sqlEmailId;
+                      let addEmailObj = {
+                        message_id: parsed.messageId,
+                        user_id: userId
+                      };
+                      Messages.addEmail(addEmailObj).then(id => {
+                        return (sqlEmailId = id);
+                      });
+                      let dataTag = res.data.tag;
+                      dataTag.map(tag => {
+                        tag.email_id = sqlEmailId;
+                      });
+                      Tags.addTag(tags);
+                    });
+
+                  // let newObj = {};
+                  // newMessages.push(newObj);
                 } else {
                 }
                 console.log(parsed.messageId === emailsIds);

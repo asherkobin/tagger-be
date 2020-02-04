@@ -5,19 +5,19 @@ module.exports = {
   addEmail,
   deleteAllEmailsByUser,
   getTagsForMessage,
-  getMessageTags,
+  getMessageTagsFromUser,
   get,
   findEmailbyId
 };
-function findEmailbyId(id){
+function findEmailbyId(id) {
   return db("emails")
-  .where({ id })
-  .first()
+    .where({ id })
+    .first();
 }
 async function addEmail(email) {
-  const [id] = await db('emails').insert(email, "id")
+  const [id] = await db("emails").insert(email, "id");
 
-  return findEmailbyId(id)
+  return findEmailbyId(id);
   // return db("emails")
   //   .insert(email, "id")
   //   .then(ids => {
@@ -43,8 +43,8 @@ function getTagsForMessage(messageId) {
     .where("message_id", messageId);
 }
 
-function getMessageTags() {
-  const messages = db("messages");
+function getMessageTagsFromUser(userId) {
+  const messages = db("messages").where({ userid });
 
   const newMessageArray = messages.map(message => {
     return get(message.id);

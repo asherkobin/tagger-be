@@ -16,7 +16,7 @@ let responseLabels = "";
 let messages = "";
 const http = rateLimit(axios.create(), {
   maxRequests: 1,
-  perMilliseconds: 1750
+  perMilliseconds: 5000
 });
 http.getMaxRPS();
 
@@ -24,6 +24,7 @@ http.getMaxRPS();
 router.post("/", (req, res) => {
   const { email, host, token } = req.body;
   const allMessages = [];
+  console.log(token, "token");
 
   var imap = new Imap({
     user: email,
@@ -122,7 +123,7 @@ router.post("/tags", (req, res) => {
 
   // first we need to see if that email exist in our database (if it does move on else we need to add it)
   let userId;
-  const emailsIds = [];
+  let emailsIds = [];
   Users.findUser(email).then(user => {
     if (user) {
       Messages.getEmailIds(user).then(ids => {
@@ -149,15 +150,16 @@ router.post("/tags", (req, res) => {
       if (err) throw err;
       imap.search(["ALL"], function(err, results) {
         if (err) throw err;
-        var f = imap.fetch(results, { bodies: "" });
+        var f = imap.fetch(results, { bodies: "", attributes: "" });
         f.on("message", function(msg, seqno) {
           console.log("Message #%d", seqno);
           var prefix = "(#" + seqno + ") ";
           msg.on("body", function(stream, info) {
             console.log(prefix + "Body");
-            simpleParser(stream, { bodies: "" })
+            simpleParser(stream, { bodies: "", attributes: "" })
               .then(parsed => {
                 console.log("\n\n\nparsed: ", parsed.text);
+                console.log(parsed.attributes, "Maybe this will work");
                 //step 0 get all email's messageid from backend
                 //step 1 getting all emails
                 //step 2 checking if emails are already in database by messageid
@@ -172,7 +174,7 @@ router.post("/tags", (req, res) => {
                 /* the problem i see with SQL is I don't believe we can pick and choose which 
               messageid's (we can't go thru all of them grab the ids and then decide we want to 
               go back to the first message that would have to be another call to open the inbox/
-              stream *FROM WHAT I UNDERSTAND*) the only way to do something like this would be to
+              stream *FROM WHAT I UNDERSTAND* the only way to do something like this would be to
               store the data as it comes in.  so we have to test each id individually and then 
               decide what to do or store them in 2 arrays 1 for already done and 1 for need to 
               be done.  
@@ -181,19 +183,22 @@ router.post("/tags", (req, res) => {
               then 1 message at a time to be tagged.  When we run into a message that needs to 
               be tagged it gets sent to DS when it returns a tag we add to DB and finally add to 
               the array that gets sent to the FE. */
-
+                emailsIds.push("THISSOMERANDOMCRAP");
                 for (let emailId of emailsIds) {
-                  if (parsed.messageId !== emailId) {
+                  if (parsed.messageId !== emailId || emailsIds.length === 0) {
                     //Sending the new message to DS for tagging
+                    const dataPackage = {
+                      sender: parsed.from.value[0].address,
+                      id: parsed.messageId,
+                      subject: parsed.subject,
+                      message: parsed.html
+                    };
+
+                    console.log(dataPackage, "WHAT ARE WE SENDING?");
                     http
                       .post(
                         "http://LstmModel-env.4zqtqnkaex.us-east-1.elasticbeanstalk.com/api/tags",
-                        {
-                          sender: parsed.from,
-                          id: parsed.messageId,
-                          subject: parsed.subject,
-                          message: parsed.text
-                        }
+                        dataPackage
                       )
                       .then(res => {
                         console.log(res, "res");
@@ -222,7 +227,7 @@ router.post("/tags", (req, res) => {
                         allMessages.push(newObj);
                       })
                       .catch(err => {
-                        console.log(err, "err");
+                        // console.log(err, "err");
                       });
                   } else {
                     Tags.findTagByMessageId(parsed.messageId).then(tags => {
@@ -246,6 +251,7 @@ router.post("/tags", (req, res) => {
           });
           msg.once("attributes", function(attrs) {
             console.log(prefix + "Attributes: %s", inspect(attrs, false, 8));
+            console.log(attrs, "this is attrs");
           });
           msg.once("end", function() {
             console.log(prefix + "Finished");
@@ -270,7 +276,6 @@ router.post("/tags", (req, res) => {
   imap.once("end", function() {
     console.log("Connection ended");
   });
-
   imap.connect();
 });
 
@@ -406,6 +411,11 @@ router.post("/postfe", (req, res) => {
                     payload.parts[0].body.data,
                     "base64"
                   ).toString();
+
+                  console.log(sender.value, "sender value");
+                  console.log(idPlaceHolder, "sender value");
+                  console.log(sender.value, "sender value");
+                  console.log(sender.value, "sender value");
 
                   http
                     .post(

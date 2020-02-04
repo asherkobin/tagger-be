@@ -2,9 +2,17 @@ const db = require("../../data/dbConfig.js");
 
 module.exports = {
   getEmailIds,
-  addEmails,
+  addEmail,
   deleteAllEmailsByUser
 };
+
+function addEmail(email) {
+  return db("emails")
+    .insert(email, "id")
+    .then(ids => {
+      return [ids];
+    });
+}
 
 function getEmailIds(userId) {
   return db("emails")

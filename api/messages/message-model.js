@@ -14,20 +14,22 @@ function findEmailbyId(id) {
     .where({ id })
     .first();
 }
-async function addEmail(email) {
-  const [id] = await db("emails").insert(email, "id");
+function addEmail(email) {
+  // const [id] = await db("emails").insert(email, "id");
 
-  return findEmailbyId(id);
-  // return db("emails")
-  //   .insert(email, "id")
-  //   .then(ids => {
-  //     return ids;
-  //   });
+  // return findEmailbyId(id);
+  return db("emails")
+    .insert(email, "id")
+    .then(ids => {
+      const [id] = ids;
+
+      return findEmailbyId(id);
+    });
 }
 
 function getEmailIds(userId) {
   return db("emails")
-    .select("id")
+    .select("*")
     .where("user_id", userId);
 }
 

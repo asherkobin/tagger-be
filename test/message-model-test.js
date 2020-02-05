@@ -51,6 +51,27 @@ describe("message_model", function() {
       expect(allEmailsClient0).to.have.lengthOf(2);
     });
 
-    // it("should");
+    it("should delete all emails of a given user", async function() {
+      const client0 = await user_model.findUser("test0@gmail.com");
+      const client1 = await user_model.findUser("test1@gmail.com");
+
+      const allEmailsClient0 = await message_model.getEmailIds(client0.id);
+      const allEmailsClient1 = await message_model.getEmailIds(client1.id);
+
+      expect(allEmailsClient0).to.have.lengthOf(2);
+      expect(allEmailsClient1).to.have.lengthOf(3);
+
+      await message_model.deleteAllEmailsByUser(client0.id);
+      await message_model.deleteAllEmailsByUser(client1.id);
+      const recheckAllEmailsClient0 = await message_model.getEmailIds(
+        client0.id
+      );
+      const recheckAllEmailsClient1 = await message_model.getEmailIds(
+        client1.id
+      );
+      console.log(recheckAllEmailsClient0);
+      expect(recheckAllEmailsClient0).to.have.lengthOf(0);
+      expect(recheckAllEmailsClient1).to.have.lengthOf(0);
+    });
   });
 });

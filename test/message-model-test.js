@@ -12,10 +12,10 @@ describe("message_model", function() {
   });
 
   describe("insert()", function() {
-    it("it should add 2 emails to he database", async function() {
-      //call insert, passing a hobbit object
+    it("it should add 2 emails to the database", async function() {
+      //add a new user
       const addedUser = await user_model.addUser({ email: "test@gmail.com" });
-
+      //add 2 emails to the new user
       await message_model.addEmail({
         message_id: "123",
         user_id: addedUser.id
@@ -24,9 +24,7 @@ describe("message_model", function() {
         message_id: "345",
         user_id: addedUser.id
       });
-
-      //check the database directly to check hobbit was added
-
+      // return all emails stored in BE and check there is only 2
       const email = await db("emails");
       expect(email).to.have.lengthOf(2);
     });

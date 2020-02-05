@@ -80,6 +80,7 @@ token.json
 
 *.db3
 
+.env
 
 node_modules
 data/emails.db3

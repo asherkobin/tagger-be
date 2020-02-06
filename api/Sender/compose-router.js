@@ -1,21 +1,9 @@
 const router = require("express").Router();
-// const axios = require("axios");
-//Step 1: Including neccessary modules
 
 const nodemailer = require("nodemailer");
-// const xoauth2 = require("xoauth2");
 
 router.post("/", (req, res) => {
-  const {
-    service,
-    host,
-    port,
-    userEmail,
-    receiver,
-    subject,
-    body,
-    token
-  } = req.body;
+  const { service, host, port, userEmail, receiver, subject, body } = req.body;
 
   let transporter = nodemailer.createTransport({
     service: service, //"gmail",
@@ -24,7 +12,7 @@ router.post("/", (req, res) => {
     port: port, // "465",
     auth: {
       type: "OAuth2", //Authentication type
-      user: userEmail, //process.env.LABS20, /
+      user: userEmail, //process.env.LABS20,
       clientId: process.env.CLIENTID,
       clientSecret: process.env.CLIENTSECRET,
       refreshToken: process.env.REFRESHTOKEN

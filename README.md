@@ -1,13 +1,3 @@
-## Contributors
-
-|[Quinton McNamee](https://github.com/QuintonMcNamee) |  
-[Edwin Parker](https://github.com/weparkerjr) |  
-[Marcus Jones](https://github.com/jonesy212) |  
-| :-----------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------: |
-| [<img src='./img/quinton.png' width='200'/>] | [<img src="./img/edwin.png" width = "200" />](https://github.com/weparkerjr) | [<img src="./img/marcus.png" width = "200" />](https://github.com/jonesy212) |  
-|[<img src="https://github.com/favicon.ico" width="15"> ](https://github.com/QuintonMcNamee) | [<img src="https://github.com/favicon.ico" width="15"> ](https://github.com/weparkerjr) | [<img src="https://github.com/favicon.ico" width="15"> ](https://github.com/jonesy212) |
-| [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/quinton-mcnamee/) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/edwin-parker-664387163/) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/marcus-jones-0227a66b/) |
-
 # API Documentation
 
 #### Backend delpoyed at [Heroku](https://taggerhq.herokuapp.com/) <br>
@@ -33,9 +23,10 @@ To get the server running locally:
 
 #### Routes
 
-| Method | Endpoint  | Access Control | Description                                                        |
-| ------ | --------- | -------------- | ------------------------------------------------------------------ |
-| POST   | `/postfe` | Frontend Team  | Post for frontend to pass the user's login information to backend. |
+| Method | Endpoint   | Access Control | Description            |
+| ------ | ---------- | -------------- | ---------------------- |
+| POST   | `/emails`  | Frontend Team  | receive all emails     |
+| POST   | `/compose` | Frontend Team  | create and send emails |
 
 # Data Model
 
@@ -43,11 +34,28 @@ To get the server running locally:
 
 ---
 
+Post /emails
+
 ```
 {
-  code: STRING
+  email: STRING  ex: taggerlabs20@gmail.com
+  host: STRING  ex: imap.gmail.com
+  token: STRING ex: Use docs to create XoAuth2 token
 }
 ```
+
+Post /compose
+
+```
+{
+  service: STRING ex: gmail
+  host: STRING ex: smtp.gmail.com
+  port: STRING ex: 465
+  userEmail: STRING ex: taggerlabs20@gmail.com note: this is the user that is sending the email.
+  receiver: STRING ex: somefakeemail@gmail.com note: this is the user that is receiving the email.
+  subject: STRING ex: This is the subject for this email
+  text: STRING ex: This is the body for this email
+}
 
 ## Environment Variables
 
@@ -98,3 +106,4 @@ These contribution guidelines have been adapted from [this good-Contributing.md-
 
 See [Frontend Documentation](https://github.com/Lambda-School-Labs/tagger-fe/blob/master/README.md) for details on the fronend of our project. <br>
 See [Data Science Documentation](https://github.com/Lambda-School-Labs/tagger-ds/blob/master/README.md) for details on the data science of our project.
+```

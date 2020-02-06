@@ -1,30 +1,78 @@
-// // cons db = require('')
+const db = require("../../data/dbConfig.js");
 
+module.exports = {
+  getEmailIds,
+  addEmail,
+  deleteAllEmailsByUser,
+  getTagsForMessage,
+  getMessageTagsFromUser,
+  get,
+  findEmailbyId
+};
+function findEmailbyId(id) {
+  return db("emails")
+    .where({ id })
+    .first();
+}
+function addEmail(email) {
+  // const [id] = await db("emails").insert(email, "id");
 
-// module.exports = {
-//     findAll,
-//     findById,
-//     remove,
-//     add,
-// }
+  // return findEmailbyId(id);
+  return db("emails")
+    .insert(email, "id")
+    .then(ids => {
+      const [id] = ids;
 
-// function findAll(){
-//     return db('messages').select()
-// }
+      return findEmailbyId(id);
+    });
+}
 
-// function findById(id){
-//     console.log(id)
-//     user_id = id;
-//     return db(`messages as m`)
-//     .select('m.messageId')
-//     .where({message_id})
-//     .first();
-// }
+function getEmailIds(userId) {
+  return db("emails")
+    .select("*")
+    .where("user_id", userId);
+}
 
-// function remove(id){
-//     return db('messages')
-//     .where({id})
-//     .first()
-//     .delete();
-// }
+function deleteAllEmailsByUser(userId) {
+  return db("emails")
+    .where("user_id", userId)
+    .del();
+}
 
+function getTagsForMessage(messageId) {
+  return db("tags")
+    .select("tag")
+    .where("email_id", messageId);
+}
+
+function getMessageTagsFromUser(userId) {
+  const messages = db("messages").where({ userid });
+
+  const newMessageArray = messages.map(message => {
+    return get(message.id);
+  });
+  return newMessageArray;
+}
+
+function get(messageId) {
+  const messages = db("messages");
+
+  if (messageId) {
+    messages.where({ messageId }).first();
+
+    const promises = [messages, getTagsForMessage(messageId)];
+
+    return Promise.all(promises).then(results => {
+      const [message, tags] = results;
+
+      if (message) {
+        message.tags = tags;
+
+        return message;
+      } else {
+        return null;
+      }
+    });
+  }
+  return messages;
+}

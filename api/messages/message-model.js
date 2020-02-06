@@ -41,8 +41,8 @@ function deleteAllEmailsByUser(userId) {
 
 function getTagsForMessage(messageId) {
   return db("tags")
-    .select("tags")
-    .where("message_id", messageId);
+    .select("tag")
+    .where("email_id", messageId);
 }
 
 function getMessageTagsFromUser(userId) {

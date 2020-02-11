@@ -16,6 +16,20 @@ exports.up = function(knex) {
         .notNullable()
         .unique();
 
+      tbl.string("from");
+
+      tbl.string("name");
+
+      tbl.string("to");
+
+      tbl.string("subject");
+
+      tbl.text("email_body");
+
+      tbl.text("email_body_text");
+
+      tbl.text("uid");
+
       tbl
         .integer("user_id")
         .unsigned()

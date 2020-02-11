@@ -7,8 +7,14 @@ module.exports = {
   getTagsForMessage,
   getMessageTagsFromUser,
   get,
-  findEmailbyId
+  findEmailbyId,
+  emails
 };
+
+function emails() {
+  return db("emails");
+}
+
 function findEmailbyId(id) {
   return db("emails")
     .where({ id })

@@ -17,6 +17,17 @@ const http = rateLimit(axios.create(), {
 });
 http.getMaxRPS();
 
+router.get("/", (req, res) => {
+  Messages.emails()
+    .then(emails => {
+      res.status(200).json(emails);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500);
+    });
+});
+
 // ********* THE NEW ROUTE WITH IMAP FOR TAGGING************
 router.post("/", (req, res) => {
   const { email, host, token } = req.body;
@@ -53,6 +64,10 @@ router.post("/", (req, res) => {
     }
   });
 
+  let emailText;
+  let emailUID = [];
+  let emailData = [];
+
   function openInbox(cb) {
     imap.openBox("INBOX", true, cb);
   }
@@ -67,67 +82,91 @@ router.post("/", (req, res) => {
           // console.log("Message #%d", seqno);
           var prefix = "(#" + seqno + ") ";
           msg.on("body", function(stream, info) {
-            simpleParser(stream, { bodies: "", attributes: "" })
-              .then(parsed => {
-                Tags.getTagsByMessageId(parsed.messageId).then(tags => {
-                  let newObj = {
-                    html: parsed.html,
-                    text: parsed.text,
-                    from: parsed.from,
-                    subject: parsed.subject,
-                    attachments: parsed.attachments,
-                    id: parsed.messageId,
-                    tags
-                  };
-                  allMessages.push(newObj);
-                });
-                const found = emailsIds.includes(parsed.messageId);
-                if (!found) {
-                  //Sending the new message to DS for tagging
-                  const dataPackage = {
-                    sender: parsed.from.value[0].address,
-                    id: parsed.messageId,
-                    subject: parsed.subject,
-                    message: parsed.html
-                  };
-                  http
-                    .post(
-                      "http://LstmModel-env.4zqtqnkaex.us-east-1.elasticbeanstalk.com/api/tags",
-                      dataPackage
-                    )
-                    .then(res => {
-                      let sqlEmailId;
-                      let addEmailObj = {
-                        message_id: parsed.messageId,
-                        user_id: userId
-                      };
-                      Messages.addEmail(addEmailObj).then(message => {
-                        sqlEmailId = message.id;
-                        let dataTag = res.data.tag;
-
-                        dataTag.forEach(tag => {
-                          let newObj = {
-                            tag,
-                            email_id: sqlEmailId
-                          };
-                          Tags.addTag(newObj);
-                        });
-                      });
-                    })
-                    .catch(err => {
-                      console.log(
-                        err,
-                        "Error for posting to DS api for tagging"
-                      );
-                    });
-                }
-              })
-              .catch(err => {
-                console.log("\n\n\nerr: ", err);
-              });
+            simpleParser(stream, { bodies: "", attributes: "" }).then(
+              parsed => {
+                // Tags.getTagsByMessageId(parsed.messageId).then(tags => {
+                // console.log(parsed.f);
+                // console.log(parsed.)
+                let addEmailObj = {
+                  message_id: parsed.messageId,
+                  user_id: userId,
+                  from: parsed.from.value[0].address,
+                  name: parsed.headers.get("from").value[0].name,
+                  to: parsed.headers.get("to").text,
+                  subject: parsed.subject,
+                  email_body: parsed.html,
+                  email_body_text: parsed.text
+                };
+                // let newObj = {
+                //   html: parsed.html,
+                //   text: parsed.text,
+                //   from: parsed.from.value[0].address,
+                //   subject: parsed.subject,
+                //   attachments: parsed.attachments,
+                //   id: parsed.messageId,
+                //   uid: 0,
+                //   tags
+                // };
+                // console.log(addEmailObj, "EMAIL BODIES HHEHEHEHHEEHERE");
+                // emailText = addEmailObj;
+                allMessages.push(addEmailObj);
+                console.log(allMessages.length, "adding!");
+              }
+            );
+            //Sending the new message to DS for tagging
+            // const dataPackage = {
+            //   sender: parsed.from.value[0].address,
+            //   id: parsed.messageId,
+            //   subject: parsed.subject,
+            //   message: parsed.html
+            // };
+            // http
+            //   .post(
+            //     "http://LstmModel-env.4zqtqnkaex.us-east-1.elasticbeanstalk.com/api/tags",
+            //     dataPackage
+            //   )
+            //   .then(res => {
+            // })
+            // .catch(err => {
+            //   console.log("\n\n\nerr: ", err);
+            // });
           });
           msg.once("attributes", function(attrs) {
+            const uid = {
+              uid: attrs.uid
+            };
+            emailUID.push(uid);
+
+            // const found = emailsIds.includes(element.messageId);
+            // if (!found) {
+            //   element.uid = attrs.uid;
+            //   let sqlEmailId;
+
+            // console.log(parsed.headers.get("to").text);
+            // Messages.addEmail(element).then(message => {
+            //   sqlEmailId = message.id;
+            // let dataTag = res.data.tag;
+
+            // dataTag.forEach(tag => {
+            //   let newObj = {
+            //     tag,
+            //     email_id: sqlEmailId
+            //   };
+            //   Tags.addTag(newObj);
+            // });
+            // });
+            // })
+            // .catch(err => {
+            //   console.log(
+            //     err,
+            //     "Error for posting to DS api for tagging"
+            //   );
+            // });
+            // console.log(message, "the last message");
+            // console.log(attrs.uid, "the last message");
+
             // console.log(prefix + "Attributes: %s", inspect(attrs, false, 8));
+            // }
           });
           msg.once("end", function() {
             console.log(prefix + "Finished");
@@ -138,8 +177,32 @@ router.post("/", (req, res) => {
         });
         f.once("end", function() {
           console.log("Done fetching all messages!");
-          res.status(200).json(allMessages);
-          imap.end();
+          console.log(emailUID.length, "EMAIL UIDS ARRAYS LENGTH");
+          setTimeout(function() {
+            console.log(allMessages.length, "ALL MESSAGES LENGTH");
+            let newArray = [];
+            for (i = 0; i < allMessages.length; i++) {
+              let message = allMessages[i];
+              let uid = emailUID[i];
+              let newObj = {
+                ...message,
+                ...uid
+              };
+              newArray.push(newObj);
+            }
+            console.log(newArray);
+            // const found = emailsIds.includes(element.messageId);
+            // if (!found) {
+            Messages.addEmail(newArray)
+              .then(message => {
+                res.status(200).json(newArray);
+              })
+              .catch(err => {
+                console.log(err);
+              });
+            // }
+            imap.end();
+          }, 1000);
         });
       });
     });
@@ -152,6 +215,7 @@ router.post("/", (req, res) => {
   imap.once("end", function() {
     console.log("Connection ended");
   });
+
   imap.connect();
 });
 

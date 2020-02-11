@@ -1,6 +1,7 @@
 const db = require("../../data/dbConfig.js");
 
 module.exports = {
+  getLastEmailFromUser,
   getEmailIds,
   addEmail,
   deleteAllEmailsByUser,
@@ -13,6 +14,13 @@ module.exports = {
 
 function emails() {
   return db("emails");
+}
+
+function getLastEmailFromUser(userid) {
+  return db("emails")
+    .orderby("uid", "desc")
+    .where("user_id", userid)
+    .first();
 }
 
 function findEmailbyId(id) {

@@ -14,6 +14,7 @@ exports.up = function(knex) {
       tbl
         .integer("message_id")
         .notNullable()
+        .unique()
 
       tbl.string("from");
 

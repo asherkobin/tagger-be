@@ -1,10 +1,12 @@
 const db = require("../../data/dbConfig.js");
 
 module.exports = {
+  getHeadersFromEmailById,
   getLastEmailFromUser,
   getEmailIds,
   addEmail,
   deleteAllEmailsByUser,
+  deleteEmail,
   getTagsForMessage,
   getMessageTagsFromUser,
   get,
@@ -14,6 +16,18 @@ module.exports = {
 
 function emails() {
   return db("emails");
+}
+
+function deleteEmail(uid) {
+  return db("emails")
+    .where("uid", uid)
+    .del();
+}
+
+function getHeadersFromEmailById(id) {
+  return db("emails")
+    .select("from", "name", "to", "subject", "uid")
+    .where("user_id", id);
 }
 
 function getLastEmailFromUser(userid) {

@@ -80,14 +80,22 @@ router.post("/", (req, res) => {
       imap.search(["ALL"], function(err, results) {
         let difference = results.filter(x => !emailsUIDs.includes(x));
         let deletion = emailsUIDs.filter(x => !results.includes(x));
-
+        if (err) throw err;
+        if(deletion.length > 0) {
+          for (let emailUid of deletion) {
+            Messages.deleteEmail(emailUid).then(del => {
+              console.log('delete email')
+            }).catch(err => {
+              console.log(err, "delete loop")
+            })
+          }
+        }
         console.log(deletion, "deletion");
         console.log(emailsUIDs, "emailsUIDS");
         console.log(difference, "difference");
         console.log(results, "results");
-        if (err) throw err;
-        if (difference.length > 100) {
-          difference = difference.slice(-100);
+        if (difference.length > 250) {
+          difference = difference.slice(-250);
         }
         // emailsUIDs === results;
         // first round look for deleted uids.
@@ -120,31 +128,31 @@ router.post("/", (req, res) => {
                     name: parsed.headers.get("from").value[0].name,
                     to: parsed.headers.get("to").text,
                     subject: parsed.subject,
-                    // email_body: parsed.html,
-                    // email_body_text: parsed.text,
+                    email_body: parsed.html,
+                    email_body_text: parsed.text,
                     uid : difference[i]
                   };
+                  Messages.addEmail(addEmailObj)
+                  .then(message => {
+                    console.log("GOOD")
+                  })
+                  .catch(err => {
+                    console.log(err);
+                  });
+                  // emailText = addEmailObj
                     // console.log(allMessages.length, "ALL MESSAGES LENGTH");
-                    let newArray = []; //i think we should have it get 1:1000 ... etc around like 80
-                    // for (i = 0; i < allMessages.length; i++) {
-                    //   let message = allMessages[i];
-                    //   let uid = emailUID[i];
-                    //   let newObj = {
-                    //     ...message,
-                    //     ...uid
-                    //   };
-                    //   newArray.push(newObj);
-                    // }
+                     //i think we should have it get 1:1000 ... etc around like 80
+                    
                     // console.log(newArray);
                     // const found = emailsIds.includes(element.messageId);
                     // if (!found) {
-                    Messages.addEmail(addEmailObj)
-                      .then(message => {
-                        console.log("GOOD")
-                      })
-                      .catch(err => {
-                        console.log(err);
-                      });
+    // Messages.addEmail(addEmailObj)
+    //   .then(message => {
+    //     console.log("GOOD")
+    //   })
+    //   .catch(err => {
+    //     console.log(err);
+    //   });
                     // }
                     
                   // let newObj = {
@@ -159,8 +167,8 @@ router.post("/", (req, res) => {
                   // };
                   // console.log(addEmailObj, "EMAIL BODIES HHEHEHEHHEEHERE");
                   // emailText = addEmailObj;
-                  allMessages.push(addEmailObj);
-                  console.log(allMessages.length, "adding!");
+  allMessages.push(addEmailObj);
+                  // console.log(allMessages.length, "adding!");
                 } //ends parsed
               ); //ends .then on 111
               //Sending the new message to DS for tagging
@@ -182,7 +190,11 @@ router.post("/", (req, res) => {
               // });
             });
             msg.once("attributes", function(attrs) {
+              // const uid = {
+              //   uid : attrs.uid
+              // }
 
+              // emailUID = uid
               // const found = emailsIds.includes(element.messageId);
               // if (!found) {
               //   element.uid = attrs.uid;
@@ -216,6 +228,19 @@ router.post("/", (req, res) => {
             });
             msg.once("end", function() {
               console.log(prefix + "Finished");
+              let newArray = [];
+              // for (i = 0; i < allMessages.length; i++) {
+              //   let message = allMessages[i];
+              //   let uid = emailUID[i];
+              //   let newObj = {
+              //     ...message,
+              //     ...uid
+              //   };
+                // newArray.push(newObj);
+
+              // }
+
+
             });
           }); //ends f.on message
         } //ends for loop
@@ -226,7 +251,11 @@ router.post("/", (req, res) => {
           f.once("end", function() {
             console.log("Done fetching all messages!");
             // console.log(emailUID.length, "EMAIL UIDS ARRAYS LENGTH");
-            res.status(200).json(allMessages);
+            Messages.getHeadersFromEmailById(userId).then(emails => {
+              res.status(200).json(emails)
+            }).catch(err => {
+              console.log(err)
+            })
             imap.end();
           });
       });
@@ -245,3 +274,4 @@ router.post("/", (req, res) => {
 });
 
 module.exports = router;
+

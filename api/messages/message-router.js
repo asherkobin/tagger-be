@@ -78,16 +78,16 @@ router.post("/", (req, res) => {
     openInbox(function(err, box) {
       if (err) throw err;
       imap.search(["ALL"], function(err, results) {
-        let deletion = results.filter(x => !emailsUIDs.includes(x));
-        let difference = emailsUIDs.filter(x => !results.includes(x));
+        let difference = results.filter(x => !emailsUIDs.includes(x));
+        let deletion = emailsUIDs.filter(x => !results.includes(x));
 
         console.log(deletion, "deletion");
         console.log(emailsUIDs, "emailsUIDS");
         console.log(difference, "difference");
         console.log(results, "results");
         if (err) throw err;
-        if (difference.length > 500) {
-          difference = difference.slice(-500);
+        if (difference.length > 100) {
+          difference = difference.slice(-100);
         }
         // emailsUIDs === results;
         // first round look for deleted uids.
@@ -102,133 +102,133 @@ router.post("/", (req, res) => {
         // 2. compare results with step 1 and reduce to x emails (500 should be good)
         // 3. ????????
         // 4. profit!
-        var f = imap.fetch(difference, { bodies: "", attributes: "" });
-        f.on("message", function(msg, seqno) {
-          // console.log("Message #%d", seqno);
-          var prefix = "(#" + seqno + ") ";
-          msg.on("body", function(stream, info) {
-            simpleParser(stream, { bodies: "", attributes: "" }).then(
-              parsed => {
-                // Tags.getTagsByMessageId(parsed.messageId).then(tags => {
-                // console.log(parsed.f);
-                // console.log(parsed.)
-                let addEmailObj = {
-                  message_id: parsed.messageId,
-                  user_id: userId,
-                  from: parsed.from.value[0].address,
-                  name: parsed.headers.get("from").value[0].name,
-                  to: parsed.headers.get("to").text,
-                  subject: parsed.subject,
-                  email_body: parsed.html,
-                  email_body_text: parsed.text
-                };
-                // let newObj = {
-                //   html: parsed.html,
-                //   text: parsed.text,
-                //   from: parsed.from.value[0].address,
-                //   subject: parsed.subject,
-                //   attachments: parsed.attachments,
-                //   id: parsed.messageId,
-                //   uid: 0,
-                //   tags
-                // };
-                // console.log(addEmailObj, "EMAIL BODIES HHEHEHEHHEEHERE");
-                // emailText = addEmailObj;
-                allMessages.push(addEmailObj);
-                console.log(allMessages.length, "adding!");
-              }
-            );
-            //Sending the new message to DS for tagging
-            // const dataPackage = {
-            //   sender: parsed.from.value[0].address,
-            //   id: parsed.messageId,
-            //   subject: parsed.subject,
-            //   message: parsed.html
-            // };
-            // http
-            //   .post(
-            //     "http://LstmModel-env.4zqtqnkaex.us-east-1.elasticbeanstalk.com/api/tags",
-            //     dataPackage
-            //   )
-            //   .then(res => {
-            // })
-            // .catch(err => {
-            //   console.log("\n\n\nerr: ", err);
-            // });
+        for (let i = 0; i < difference.length; i++) {
+          var f = imap.fetch(difference[i], { bodies: "", attributes: "" });
+          f.on("message", function(msg, seqno) {
+            // console.log("Message #%d", seqno);
+            var prefix = "(#" + seqno + ") ";
+            msg.on("body", function(stream, info) {
+              simpleParser(stream, { bodies: "", attributes: "" }).then(
+                parsed => {
+                  // Tags.getTagsByMessageId(parsed.messageId).then(tags => {
+                  // console.log(parsed.f);
+                  // console.log(parsed.)
+                  let addEmailObj = {
+                    message_id: parsed.messageId,
+                    user_id: userId,
+                    from: parsed.from.value[0].address,
+                    name: parsed.headers.get("from").value[0].name,
+                    to: parsed.headers.get("to").text,
+                    subject: parsed.subject,
+                    // email_body: parsed.html,
+                    // email_body_text: parsed.text,
+                    uid : difference[i]
+                  };
+                    // console.log(allMessages.length, "ALL MESSAGES LENGTH");
+                    let newArray = []; //i think we should have it get 1:1000 ... etc around like 80
+                    // for (i = 0; i < allMessages.length; i++) {
+                    //   let message = allMessages[i];
+                    //   let uid = emailUID[i];
+                    //   let newObj = {
+                    //     ...message,
+                    //     ...uid
+                    //   };
+                    //   newArray.push(newObj);
+                    // }
+                    // console.log(newArray);
+                    // const found = emailsIds.includes(element.messageId);
+                    // if (!found) {
+                    Messages.addEmail(addEmailObj)
+                      .then(message => {
+                        console.log("GOOD")
+                      })
+                      .catch(err => {
+                        console.log(err);
+                      });
+                    // }
+                    
+                  // let newObj = {
+                  //   html: parsed.html,
+                  //   text: parsed.text,
+                  //   from: parsed.from.value[0].address,
+                  //   subject: parsed.subject,
+                  //   attachments: parsed.attachments,
+                  //   id: parsed.messageId,
+                  //   uid: 0,
+                  //   tags
+                  // };
+                  // console.log(addEmailObj, "EMAIL BODIES HHEHEHEHHEEHERE");
+                  // emailText = addEmailObj;
+                  allMessages.push(addEmailObj);
+                  console.log(allMessages.length, "adding!");
+                } //ends parsed
+              ); //ends .then on 111
+              //Sending the new message to DS for tagging
+              // const dataPackage = {
+              //   sender: parsed.from.value[0].address,
+              //   id: parsed.messageId,
+              //   subject: parsed.subject,
+              //   message: parsed.html
+              // };
+              // http
+              //   .post(
+              //     "http://LstmModel-env.4zqtqnkaex.us-east-1.elasticbeanstalk.com/api/tags",
+              //     dataPackage
+              //   )
+              //   .then(res => {
+              // })
+              // .catch(err => {
+              //   console.log("\n\n\nerr: ", err);
+              // });
+            });
+            msg.once("attributes", function(attrs) {
+
+              // const found = emailsIds.includes(element.messageId);
+              // if (!found) {
+              //   element.uid = attrs.uid;
+              //   let sqlEmailId;
+
+              // console.log(parsed.headers.get("to").text);
+              // Messages.addEmail(element).then(message => {
+              //   sqlEmailId = message.id;
+              // let dataTag = res.data.tag;
+
+              // dataTag.forEach(tag => {
+              //   let newObj = {
+              //     tag,
+              //     email_id: sqlEmailId
+              //   };
+              //   Tags.addTag(newObj);
+              // });
+              // });
+              // })
+              // .catch(err => {
+              //   console.log(
+              //     err,
+              //     "Error for posting to DS api for tagging"
+              //   );
+              // });
+              // console.log(message, "the last message");
+              // console.log(attrs.uid, "the last message");
+
+              // console.log(prefix + "Attributes: %s", inspect(attrs, false, 8));
+              // }
+            });
+            msg.once("end", function() {
+              console.log(prefix + "Finished");
+            });
+          }); //ends f.on message
+        } //ends for loop
+
+          f.once("error", function(err) {
+            console.log("Fetch error: " + err);
           });
-          msg.once("attributes", function(attrs) {
-            const uid = {
-              uid: attrs.uid
-            };
-            emailUID.push(uid);
-
-            // const found = emailsIds.includes(element.messageId);
-            // if (!found) {
-            //   element.uid = attrs.uid;
-            //   let sqlEmailId;
-
-            // console.log(parsed.headers.get("to").text);
-            // Messages.addEmail(element).then(message => {
-            //   sqlEmailId = message.id;
-            // let dataTag = res.data.tag;
-
-            // dataTag.forEach(tag => {
-            //   let newObj = {
-            //     tag,
-            //     email_id: sqlEmailId
-            //   };
-            //   Tags.addTag(newObj);
-            // });
-            // });
-            // })
-            // .catch(err => {
-            //   console.log(
-            //     err,
-            //     "Error for posting to DS api for tagging"
-            //   );
-            // });
-            // console.log(message, "the last message");
-            // console.log(attrs.uid, "the last message");
-
-            // console.log(prefix + "Attributes: %s", inspect(attrs, false, 8));
-            // }
-          });
-          msg.once("end", function() {
-            console.log(prefix + "Finished");
-          });
-        });
-        f.once("error", function(err) {
-          console.log("Fetch error: " + err);
-        });
-        f.once("end", function() {
-          console.log("Done fetching all messages!");
-          // console.log(emailUID.length, "EMAIL UIDS ARRAYS LENGTH");
-          setTimeout(function() {
-            // console.log(allMessages.length, "ALL MESSAGES LENGTH");
-            let newArray = []; //i think we should have it get 1:1000 ... etc around like 80
-            for (i = 0; i < allMessages.length; i++) {
-              let message = allMessages[i];
-              let uid = emailUID[i];
-              let newObj = {
-                ...message,
-                ...uid
-              };
-              newArray.push(newObj);
-            }
-            // console.log(newArray);
-            // const found = emailsIds.includes(element.messageId);
-            // if (!found) {
-            Messages.addEmail(newArray)
-              .then(message => {
-                res.status(200).json(newArray);
-              })
-              .catch(err => {
-                console.log(err);
-              });
-            // }
+          f.once("end", function() {
+            console.log("Done fetching all messages!");
+            // console.log(emailUID.length, "EMAIL UIDS ARRAYS LENGTH");
+            res.status(200).json(allMessages);
             imap.end();
-          }, 1000);
-        });
+          });
       });
     });
   });

@@ -43,7 +43,7 @@ function addEmail(email) {
 
 function getEmailIds(userId) {
   return db("emails")
-    .select("*")
+    .select("uid")
     .where("user_id", userId);
 }
 

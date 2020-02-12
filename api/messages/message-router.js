@@ -44,15 +44,17 @@ router.post("/", (req, res) => {
     debug: console.log
   });
   let userId;
-  let emailsIds = [];
+  let emailsUIDs = [];
   Users.findUser(email).then(user => {
     if (user) {
-      Messages.getEmailIds(user.id).then(message => {
-        message.forEach(id => {
-          emailsIds.push(id.message_id);
+      Messages.getEmailIds(user.id).then(uid => {
+        uid.map(id => {
+          // console.log(id);
+          emailsUIDs.push(id.uid * 1);
         });
+
         userId = user.id;
-        return emailsIds, userId;
+        return emailsUIDs, userId;
       });
     } else {
       const emailObj = {
@@ -76,8 +78,31 @@ router.post("/", (req, res) => {
     openInbox(function(err, box) {
       if (err) throw err;
       imap.search(["ALL"], function(err, results) {
+        let deletion = results.filter(x => !emailsUIDs.includes(x));
+        let difference = emailsUIDs.filter(x => !results.includes(x));
+
+        console.log(deletion, "deletion");
+        console.log(emailsUIDs, "emailsUIDS");
+        console.log(difference, "difference");
+        console.log(results, "results");
         if (err) throw err;
-        var f = imap.fetch(results, { bodies: "", attributes: "" });
+        if (difference.length > 500) {
+          difference = difference.slice(-500);
+        }
+        // emailsUIDs === results;
+        // first round look for deleted uids.
+        // second round look for missing uids from database
+        // third round max out array at 500 emails
+        // results is an array of uids we can cut this array down and also create a new field in the table that tells us how many times we would need to do this process to get to the latest emails.
+        // prolly would be best to send something to the frontend in our res.status letting it know if this contains all emails or just partial.
+        // we could also just grab the last 100 emails because this is a ascn order array.  we can just change the array results to last x of emails.
+        // the idea call database and get all uids that are already added and subtract that from results then limit results to only 500 items.
+        // this is also helpful because we also know that if a uid is not in this list that we will need to delete it from our database as its been deleted.
+        // 1. call database with user_id to find UID
+        // 2. compare results with step 1 and reduce to x emails (500 should be good)
+        // 3. ????????
+        // 4. profit!
+        var f = imap.fetch(difference, { bodies: "", attributes: "" });
         f.on("message", function(msg, seqno) {
           // console.log("Message #%d", seqno);
           var prefix = "(#" + seqno + ") ";
@@ -177,10 +202,10 @@ router.post("/", (req, res) => {
         });
         f.once("end", function() {
           console.log("Done fetching all messages!");
-          console.log(emailUID.length, "EMAIL UIDS ARRAYS LENGTH");
+          // console.log(emailUID.length, "EMAIL UIDS ARRAYS LENGTH");
           setTimeout(function() {
-            console.log(allMessages.length, "ALL MESSAGES LENGTH");
-            let newArray = [];
+            // console.log(allMessages.length, "ALL MESSAGES LENGTH");
+            let newArray = []; //i think we should have it get 1:1000 ... etc around like 80
             for (i = 0; i < allMessages.length; i++) {
               let message = allMessages[i];
               let uid = emailUID[i];
@@ -190,7 +215,7 @@ router.post("/", (req, res) => {
               };
               newArray.push(newObj);
             }
-            console.log(newArray);
+            // console.log(newArray);
             // const found = emailsIds.includes(element.messageId);
             // if (!found) {
             Messages.addEmail(newArray)

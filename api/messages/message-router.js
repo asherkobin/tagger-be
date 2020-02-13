@@ -6,7 +6,7 @@ const Imap = require("imap");
 const inspect = require("util").inspect;
 const simpleParser = require("mailparser").simpleParser;
 const fs = require("fs");
-const { Readable } = require("stream")
+const { Readable } = require("stream");
 
 const Users = require("../users/user-model");
 const Messages = require("./message-model");
@@ -43,25 +43,12 @@ router.post("/test", (req, res) => {
       const file = fs.createWriteStream(`./stream/allEmails${userID}.file`);
       Messages.emails(userID)
         .then(emails => {
-          
           const data = JSON.stringify(emails);
           file.write(data);
-
           file.end("Done");
 
-          const src = fs.createReadStream(`./stream/allEmails${userID}.file`)
-          res.writeHead(200, {
-            'Content-Type': 'json',
-            'Content-Length': stat.size
-        });
-          src.pipe(res)
-          // const inStream = new Readable()
-
-          // inStream.push(src)
-          // inStream.push(null)
-
-          // inStream.pipe(process.stdout)
-          // res.status(200)
+          const src = fs.createReadStream(`./stream/allEmails${userID}.file`);
+          src.pipe(res);
         })
         .catch(err => {
           console.log(err);
@@ -71,9 +58,7 @@ router.post("/test", (req, res) => {
 });
 
 // SEND STREAM TO DS
-router.post("/", (req, res) => {
-
-})
+router.post("/", (req, res) => {});
 
 // ********* THE ROUTES WITH STREAMING ************
 

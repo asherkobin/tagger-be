@@ -1,11 +1,13 @@
 // ****** DEPENDENCIES *********
 const router = require("express").Router();
 const axios = require("axios");
-require("dotenv").config();
 const rateLimit = require("axios-rate-limit");
 const Imap = require("imap");
 const inspect = require("util").inspect;
 const simpleParser = require("mailparser").simpleParser;
+const fs = require("fs");
+const { Readable } = require("stream")
+
 const Users = require("../users/user-model");
 const Messages = require("./message-model");
 const Tags = require("../tags/tag-model");
@@ -27,6 +29,53 @@ router.get("/", (req, res) => {
       res.status(500);
     });
 });
+// ********* THE ROUTES WITH STREAMING ************
+
+// CREATE STREAM FILE
+router.post("/test", (req, res) => {
+  const { email } = req.body;
+  let userID;
+  Users.findUser(email)
+    .then(user => {
+      if (user) return (userID = user.id);
+    })
+    .then(() => {
+      const file = fs.createWriteStream(`./stream/allEmails${userID}.file`);
+      Messages.emails(userID)
+        .then(emails => {
+          
+          const data = JSON.stringify(emails);
+          file.write(data);
+
+          file.end("Done");
+
+          const src = fs.createReadStream(`./stream/allEmails${userID}.file`)
+          res.writeHead(200, {
+            'Content-Type': 'json',
+            'Content-Length': stat.size
+        });
+          src.pipe(res)
+          // const inStream = new Readable()
+
+          // inStream.push(src)
+          // inStream.push(null)
+
+          // inStream.pipe(process.stdout)
+          // res.status(200)
+        })
+        .catch(err => {
+          console.log(err);
+          res.status(500).json({ message: "I don't like you" });
+        });
+    });
+});
+
+// SEND STREAM TO DS
+router.post("/", (req, res) => {
+
+})
+
+// ********* THE ROUTES WITH STREAMING ************
 
 // ********* THE NEW ROUTE WITH IMAP FOR TAGGING************
 router.post("/", (req, res) => {
@@ -45,11 +94,11 @@ router.post("/", (req, res) => {
   });
   let userId;
   let emailsUIDs = [];
+
   Users.findUser(email).then(user => {
     if (user) {
       Messages.getEmailIds(user.id).then(uid => {
         uid.map(id => {
-          // console.log(id);
           emailsUIDs.push(id.uid * 1);
         });
 
@@ -66,10 +115,6 @@ router.post("/", (req, res) => {
     }
   });
 
-  let emailText;
-  let emailUID = [];
-  let emailData = [];
-
   function openInbox(cb) {
     imap.openBox("INBOX", true, cb);
   }
@@ -81,19 +126,19 @@ router.post("/", (req, res) => {
         let difference = results.filter(x => !emailsUIDs.includes(x));
         let deletion = emailsUIDs.filter(x => !results.includes(x));
         if (err) throw err;
-        if(deletion.length > 0) {
+
+        if (deletion.length > 0) {
           for (let emailUid of deletion) {
-            Messages.deleteEmail(emailUid).then(del => {
-              console.log('delete email')
-            }).catch(err => {
-              console.log(err, "delete loop")
-            })
+            Messages.deleteEmail(emailUid)
+              .then(del => {
+                console.log("delete email");
+              })
+              .catch(err => {
+                console.log(err, "delete loop");
+              });
           }
         }
-        console.log(deletion, "deletion");
-        console.log(emailsUIDs, "emailsUIDS");
-        console.log(difference, "difference");
-        console.log(results, "results");
+
         if (difference.length > 250) {
           difference = difference.slice(-250);
         }
@@ -118,9 +163,6 @@ router.post("/", (req, res) => {
             msg.on("body", function(stream, info) {
               simpleParser(stream, { bodies: "", attributes: "" }).then(
                 parsed => {
-                  // Tags.getTagsByMessageId(parsed.messageId).then(tags => {
-                  // console.log(parsed.f);
-                  // console.log(parsed.)
                   let addEmailObj = {
                     message_id: parsed.messageId,
                     user_id: userId,
@@ -130,45 +172,17 @@ router.post("/", (req, res) => {
                     subject: parsed.subject,
                     email_body: parsed.html,
                     email_body_text: parsed.text,
-                    uid : difference[i]
+                    uid: difference[i]
                   };
                   Messages.addEmail(addEmailObj)
-                  .then(message => {
-                    console.log("GOOD")
-                  })
-                  .catch(err => {
-                    console.log(err);
-                  });
-                  // emailText = addEmailObj
-                    // console.log(allMessages.length, "ALL MESSAGES LENGTH");
-                     //i think we should have it get 1:1000 ... etc around like 80
-                    
-                    // console.log(newArray);
-                    // const found = emailsIds.includes(element.messageId);
-                    // if (!found) {
-    // Messages.addEmail(addEmailObj)
-    //   .then(message => {
-    //     console.log("GOOD")
-    //   })
-    //   .catch(err => {
-    //     console.log(err);
-    //   });
-                    // }
-                    
-                  // let newObj = {
-                  //   html: parsed.html,
-                  //   text: parsed.text,
-                  //   from: parsed.from.value[0].address,
-                  //   subject: parsed.subject,
-                  //   attachments: parsed.attachments,
-                  //   id: parsed.messageId,
-                  //   uid: 0,
-                  //   tags
-                  // };
-                  // console.log(addEmailObj, "EMAIL BODIES HHEHEHEHHEEHERE");
-                  // emailText = addEmailObj;
-  allMessages.push(addEmailObj);
-                  // console.log(allMessages.length, "adding!");
+                    .then(message => {
+                      console.log("GOOD");
+                    })
+                    .catch(err => {
+                      console.log(err);
+                    });
+
+                  allMessages.push(addEmailObj);
                 } //ends parsed
               ); //ends .then on 111
               //Sending the new message to DS for tagging
@@ -189,75 +203,28 @@ router.post("/", (req, res) => {
               //   console.log("\n\n\nerr: ", err);
               // });
             });
-            msg.once("attributes", function(attrs) {
-              // const uid = {
-              //   uid : attrs.uid
-              // }
-
-              // emailUID = uid
-              // const found = emailsIds.includes(element.messageId);
-              // if (!found) {
-              //   element.uid = attrs.uid;
-              //   let sqlEmailId;
-
-              // console.log(parsed.headers.get("to").text);
-              // Messages.addEmail(element).then(message => {
-              //   sqlEmailId = message.id;
-              // let dataTag = res.data.tag;
-
-              // dataTag.forEach(tag => {
-              //   let newObj = {
-              //     tag,
-              //     email_id: sqlEmailId
-              //   };
-              //   Tags.addTag(newObj);
-              // });
-              // });
-              // })
-              // .catch(err => {
-              //   console.log(
-              //     err,
-              //     "Error for posting to DS api for tagging"
-              //   );
-              // });
-              // console.log(message, "the last message");
-              // console.log(attrs.uid, "the last message");
-
-              // console.log(prefix + "Attributes: %s", inspect(attrs, false, 8));
-              // }
-            });
+            msg.once("attributes", function(attrs) {});
             msg.once("end", function() {
               console.log(prefix + "Finished");
               let newArray = [];
-              // for (i = 0; i < allMessages.length; i++) {
-              //   let message = allMessages[i];
-              //   let uid = emailUID[i];
-              //   let newObj = {
-              //     ...message,
-              //     ...uid
-              //   };
-                // newArray.push(newObj);
-
-              // }
-
-
             });
           }); //ends f.on message
         } //ends for loop
 
-          f.once("error", function(err) {
-            console.log("Fetch error: " + err);
-          });
-          f.once("end", function() {
-            console.log("Done fetching all messages!");
-            // console.log(emailUID.length, "EMAIL UIDS ARRAYS LENGTH");
-            Messages.getHeadersFromEmailById(userId).then(emails => {
-              res.status(200).json(emails)
-            }).catch(err => {
-              console.log(err)
+        f.once("error", function(err) {
+          console.log("Fetch error: " + err);
+        });
+        f.once("end", function() {
+          console.log("Done fetching all messages!");
+          Messages.getHeadersFromEmailById(userId)
+            .then(emails => {
+              res.status(200).json(emails);
             })
-            imap.end();
-          });
+            .catch(err => {
+              console.log(err);
+            });
+          imap.end();
+        });
       });
     });
   });
@@ -274,4 +241,3 @@ router.post("/", (req, res) => {
 });
 
 module.exports = router;
-

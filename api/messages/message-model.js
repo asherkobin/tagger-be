@@ -14,8 +14,12 @@ module.exports = {
   emails
 };
 
-function emails() {
-  return db("emails");
+// function getEmailsForDS(userId) {
+//   return db("emails").select("from as from_", "to as user_", "subject", "uid")
+// }
+
+function emails(id) {
+  return db("emails").where("user_id", id);
 }
 
 function deleteEmail(uid) {

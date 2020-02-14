@@ -111,7 +111,6 @@ router.post("/", (req, res) => {
         let difference = results.filter(x => !emailsUIDs.includes(x));
         let deletion = emailsUIDs.filter(x => !results.includes(x));
         if (err) throw err;
-        console.log(difference);
 
         if (deletion.length > 0) {
           for (let emailUid of deletion) {
@@ -124,6 +123,7 @@ router.post("/", (req, res) => {
               });
           }
         }
+
         if (difference.length === 0) {
           difference = results[0]
           allFetched = true

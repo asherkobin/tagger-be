@@ -6,7 +6,6 @@ const Imap = require("imap");
 const inspect = require("util").inspect;
 const simpleParser = require("mailparser").simpleParser;
 const fs = require("fs");
-const { Readable } = require("stream");
 
 const Users = require("../users/user-model");
 const Messages = require("./message-model");
@@ -32,7 +31,7 @@ router.get("/", (req, res) => {
 // ********* THE ROUTES WITH STREAMING ************
 
 // CREATE STREAM FILE
-router.post("/test", (req, res) => {
+router.post("/stream", (req, res) => {
   const { email } = req.body;
   let userID;
   Users.findUser(email)
@@ -45,8 +44,9 @@ router.post("/test", (req, res) => {
         .then(emails => {
           const data = JSON.stringify(emails);
           file.write(data);
-          file.end("Done");
-
+          file.end();
+        })
+        .then(()=> {
           const src = fs.createReadStream(`./stream/allEmails${userID}.file`);
           src.pipe(res);
         })
@@ -58,7 +58,6 @@ router.post("/test", (req, res) => {
 });
 
 // SEND STREAM TO DS
-router.post("/", (req, res) => {});
 
 // ********* THE ROUTES WITH STREAMING ************
 

@@ -78,9 +78,14 @@ credentials.json
 # Token
 token.json
 
+# Database
 *.db3
-
+# Env
 .env
 
+# Streams
+stream/
+
+# Just in case?
 node_modules
 data/emails.db3

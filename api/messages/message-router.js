@@ -65,6 +65,7 @@ router.post("/stream", (req, res) => {
 router.post("/", (req, res) => {
   const { email, host, token } = req.body;
   const allMessages = [];
+  const allFetched = false;
 
   var imap = new Imap({
     user: email,
@@ -124,16 +125,11 @@ router.post("/", (req, res) => {
           }
         }
         if (difference.length === 0) {
-          imap.end();
-          res.status(200).json({
-            allEmailsFetched: {
-              fetch: true,
-              date: Date.now()
-            }
-          });
+          difference = results[0]
+          allFetched = true
         } else if (difference.length > 250) {
           difference = difference.slice(-250);
-
+        }
           // emailsUIDs === results;
           // first round look for deleted uids.
           // second round look for missing uids from database
@@ -208,16 +204,14 @@ router.post("/", (req, res) => {
           });
           f.once("end", function() {
             console.log("Done fetching all messages!");
-            Messages.getHeadersFromEmailById(userId)
-              .then(emails => {
-                res.status(200).json(emails);
-              })
-              .catch(err => {
-                console.log(err);
-              });
+            res.status(200).json({
+              allEmailsFetched: {
+                fetched: allFetched,
+                date: Date.now()
+              }
+            })
             imap.end();
           });
-        }
       });
     });
   });

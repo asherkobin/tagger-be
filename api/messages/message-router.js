@@ -65,7 +65,7 @@ router.post("/stream", (req, res) => {
 router.post("/", (req, res) => {
   const { email, host, token } = req.body;
   const allMessages = [];
-  const allFetched = false;
+  let allFetched = false;
 
   var imap = new Imap({
     user: email,
@@ -125,10 +125,11 @@ router.post("/", (req, res) => {
         }
 
         if (difference.length === 0) {
-          difference = results[0]
+          difference = [results[0]]
           allFetched = true
         } else if (difference.length > 250) {
           difference = difference.slice(-250);
+          allFetched = false
         }
           // emailsUIDs === results;
           // first round look for deleted uids.

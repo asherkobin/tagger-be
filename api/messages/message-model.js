@@ -4,6 +4,7 @@ module.exports = {
   getHeadersFromEmailById,
   getLastEmailFromUser,
   getEmailIds,
+  getEmailsForDS,
   addEmail,
   deleteAllEmailsByUser,
   deleteEmail,
@@ -14,9 +15,11 @@ module.exports = {
   emails
 };
 
-// function getEmailsForDS(userId) {
-//   return db("emails").select("from as from_", "to as user_", "subject", "uid")
-// }
+function getEmailsForDS(userId) {
+  return db("emails")
+    .select("uid", "from as from", "email_body_text as msg", "subject")
+    .where("user_id", id);
+}
 
 function emails(id) {
   return db("emails").where("user_id", id);

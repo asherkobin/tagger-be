@@ -46,7 +46,7 @@ router.post("/stream", (req, res) => {
           file.write(data);
           file.end();
         })
-        .then(()=> {
+        .then(() => {
           const src = fs.createReadStream(`./stream/allEmails${userID}.file`);
           src.pipe(res);
         })
@@ -110,6 +110,7 @@ router.post("/", (req, res) => {
         let difference = results.filter(x => !emailsUIDs.includes(x));
         let deletion = emailsUIDs.filter(x => !results.includes(x));
         if (err) throw err;
+        console.log(difference);
 
         if (deletion.length > 0) {
           for (let emailUid of deletion) {
@@ -122,93 +123,101 @@ router.post("/", (req, res) => {
               });
           }
         }
-
-        if (difference.length > 250) {
-          difference = difference.slice(-250);
-        }
-        // emailsUIDs === results;
-        // first round look for deleted uids.
-        // second round look for missing uids from database
-        // third round max out array at 500 emails
-        // results is an array of uids we can cut this array down and also create a new field in the table that tells us how many times we would need to do this process to get to the latest emails.
-        // prolly would be best to send something to the frontend in our res.status letting it know if this contains all emails or just partial.
-        // we could also just grab the last 100 emails because this is a ascn order array.  we can just change the array results to last x of emails.
-        // the idea call database and get all uids that are already added and subtract that from results then limit results to only 500 items.
-        // this is also helpful because we also know that if a uid is not in this list that we will need to delete it from our database as its been deleted.
-        // 1. call database with user_id to find UID
-        // 2. compare results with step 1 and reduce to x emails (500 should be good)
-        // 3. ????????
-        // 4. profit!
-        for (let i = 0; i < difference.length; i++) {
-          var f = imap.fetch(difference[i], { bodies: "", attributes: "" });
-          f.on("message", function(msg, seqno) {
-            // console.log("Message #%d", seqno);
-            var prefix = "(#" + seqno + ") ";
-            msg.on("body", function(stream, info) {
-              simpleParser(stream, { bodies: "", attributes: "" }).then(
-                parsed => {
-                  let addEmailObj = {
-                    message_id: parsed.messageId,
-                    user_id: userId,
-                    from: parsed.from.value[0].address,
-                    name: parsed.headers.get("from").value[0].name,
-                    to: parsed.headers.get("to").text,
-                    subject: parsed.subject,
-                    email_body: parsed.html,
-                    email_body_text: parsed.text,
-                    uid: difference[i]
-                  };
-                  Messages.addEmail(addEmailObj)
-                    .then(message => {
-                      console.log("GOOD");
-                    })
-                    .catch(err => {
-                      console.log(err);
-                    });
-
-                  allMessages.push(addEmailObj);
-                } //ends parsed
-              ); //ends .then on 111
-              //Sending the new message to DS for tagging
-              // const dataPackage = {
-              //   sender: parsed.from.value[0].address,
-              //   id: parsed.messageId,
-              //   subject: parsed.subject,
-              //   message: parsed.html
-              // };
-              // http
-              //   .post(
-              //     "http://LstmModel-env.4zqtqnkaex.us-east-1.elasticbeanstalk.com/api/tags",
-              //     dataPackage
-              //   )
-              //   .then(res => {
-              // })
-              // .catch(err => {
-              //   console.log("\n\n\nerr: ", err);
-              // });
-            });
-            msg.once("attributes", function(attrs) {});
-            msg.once("end", function() {
-              console.log(prefix + "Finished");
-              let newArray = [];
-            });
-          }); //ends f.on message
-        } //ends for loop
-
-        f.once("error", function(err) {
-          console.log("Fetch error: " + err);
-        });
-        f.once("end", function() {
-          console.log("Done fetching all messages!");
-          Messages.getHeadersFromEmailById(userId)
-            .then(emails => {
-              res.status(200).json(emails);
-            })
-            .catch(err => {
-              console.log(err);
-            });
+        if (difference.length === 0) {
           imap.end();
-        });
+          res.status(200).json({
+            allEmailsFetched: {
+              fetch: true,
+              date: Date.now()
+            }
+          });
+        } else if (difference.length > 250) {
+          difference = difference.slice(-250);
+
+          // emailsUIDs === results;
+          // first round look for deleted uids.
+          // second round look for missing uids from database
+          // third round max out array at 500 emails
+          // results is an array of uids we can cut this array down and also create a new field in the table that tells us how many times we would need to do this process to get to the latest emails.
+          // prolly would be best to send something to the frontend in our res.status letting it know if this contains all emails or just partial.
+          // we could also just grab the last 100 emails because this is a ascn order array.  we can just change the array results to last x of emails.
+          // the idea call database and get all uids that are already added and subtract that from results then limit results to only 500 items.
+          // this is also helpful because we also know that if a uid is not in this list that we will need to delete it from our database as its been deleted.
+          // 1. call database with user_id to find UID
+          // 2. compare results with step 1 and reduce to x emails (500 should be good)
+          // 3. ????????
+          // 4. profit!
+          for (let i = 0; i < difference.length; i++) {
+            var f = imap.fetch(difference[i], { bodies: "", attributes: "" });
+            f.on("message", function(msg, seqno) {
+              // console.log("Message #%d", seqno);
+              var prefix = "(#" + seqno + ") ";
+              msg.on("body", function(stream, info) {
+                simpleParser(stream, { bodies: "", attributes: "" }).then(
+                  parsed => {
+                    let addEmailObj = {
+                      message_id: parsed.messageId,
+                      user_id: userId,
+                      from: parsed.from.value[0].address,
+                      name: parsed.headers.get("from").value[0].name,
+                      to: parsed.headers.get("to").text,
+                      subject: parsed.subject,
+                      email_body: parsed.html,
+                      email_body_text: parsed.text,
+                      uid: difference[i]
+                    };
+                    Messages.addEmail(addEmailObj)
+                      .then(message => {
+                        console.log("GOOD");
+                      })
+                      .catch(err => {
+                        console.log(err);
+                      });
+
+                    allMessages.push(addEmailObj);
+                  } //ends parsed
+                ); //ends .then on 111
+                //Sending the new message to DS for tagging
+                // const dataPackage = {
+                //   sender: parsed.from.value[0].address,
+                //   id: parsed.messageId,
+                //   subject: parsed.subject,
+                //   message: parsed.html
+                // };
+                // http
+                //   .post(
+                //     "http://LstmModel-env.4zqtqnkaex.us-east-1.elasticbeanstalk.com/api/tags",
+                //     dataPackage
+                //   )
+                //   .then(res => {
+                // })
+                // .catch(err => {
+                //   console.log("\n\n\nerr: ", err);
+                // });
+              });
+              msg.once("attributes", function(attrs) {});
+              msg.once("end", function() {
+                console.log(prefix + "Finished");
+                let newArray = [];
+              });
+            }); //ends f.on message
+          } //ends for loop
+
+          f.once("error", function(err) {
+            console.log("Fetch error: " + err);
+          });
+          f.once("end", function() {
+            console.log("Done fetching all messages!");
+            Messages.getHeadersFromEmailById(userId)
+              .then(emails => {
+                res.status(200).json(emails);
+              })
+              .catch(err => {
+                console.log(err);
+              });
+            imap.end();
+          });
+        }
       });
     });
   });

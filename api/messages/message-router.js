@@ -59,17 +59,20 @@ router.post("/stream", (req, res) => {
 
 // SEND STREAM TO DS
 
-// router.post("/train", (req, res) => {
-//   const { email } = req.body
-//   let DsUser
-//   Users.findUser(email)
-//     .then(user => {
-//       if (user) return (DsUser = user.id)
-//     })
-//   .then(()=> {
-//     Messages.getEmailsForDS(userI)
-//   })
-// })
+router.post("/train", (req, res) => {
+  const { email } = req.body
+  let DsUser;
+  Users.findUser(email)
+    .then(user => {
+      if (user){
+        DsUser = user.id;
+        return DsUser;
+      } 
+    })
+  .then(()=> {
+    Messages.getEmailsForDS(userI)
+  })
+})
 
 // ********* THE ROUTES WITH STREAMING ************
 
@@ -123,6 +126,7 @@ router.post("/", (req, res) => {
         let difference = results.filter(x => !emailsUIDs.includes(x));
         let deletion = emailsUIDs.filter(x => !results.includes(x));
         if (err) throw err;
+        const emailsLeft = difference
 
         if (deletion.length > 0) {
           for (let emailUid of deletion) {
@@ -135,7 +139,6 @@ router.post("/", (req, res) => {
               });
           }
         }
-
         if (difference.length === 0) {
           difference = [results[0]];
           allFetched = true;
@@ -173,6 +176,7 @@ router.post("/", (req, res) => {
                     subject: parsed.subject,
                     email_body: parsed.html,
                     email_body_text: parsed.text,
+                    date: parsed.date,
                     uid: difference[i]
                   };
                   Messages.addEmail(addEmailObj)

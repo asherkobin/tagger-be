@@ -17,8 +17,8 @@ module.exports = {
 
 function getEmailsForDS(userId) {
   return db("emails")
-    .select("uid", "from as from", "email_body_text as msg", "subject")
-    .where("user_id", id);
+    .select("uid", "from", "email_body_text", "subject")
+    .where("user_id", userId);
 }
 
 function emails(id) {

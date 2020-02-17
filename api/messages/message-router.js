@@ -6,6 +6,7 @@ const Imap = require("imap");
 const inspect = require("util").inspect;
 const simpleParser = require("mailparser").simpleParser;
 const fs = require("fs");
+const { parse, stringify } = require('flatted')
 
 const Users = require("../users/user-model");
 const Messages = require("./message-model");
@@ -48,6 +49,7 @@ router.post("/stream", (req, res) => {
         })
         .then(() => {
           const src = fs.createReadStream(`./stream/allEmails${userID}.file`);
+          console.log("STREAM STREAM");
           src.pipe(res);
         })
         .catch(err => {
@@ -60,21 +62,76 @@ router.post("/stream", (req, res) => {
 // SEND STREAM TO DS
 
 router.post("/train", (req, res) => {
-  const { email } = req.body
+  const { email } = req.body;
   let DsUser;
+  let Input = {
+    emails: [],
+    address: email
+  }
+  let DsEmailStructure = []
   Users.findUser(email)
     .then(user => {
-      if (user){
+      if (user) {
         DsUser = user.id;
         return DsUser;
-      } 
+      }
     })
-  .then(()=> {
-    Messages.getEmailsForDS(userI)
-  })
-})
-
-// ********* THE ROUTES WITH STREAMING ************
+    .then(() => {
+      const file = fs.createWriteStream(
+        `./stream/allEmails${DsUser}Search.file`
+      );
+      Messages.emails(DsUser)
+        .then(emailsDs => {
+          emailsDs.map(email => {
+            const newStruc = {
+              uid : email.uid,
+              from : email.from,
+              msg : email.email_body_text,
+              subject : email.subject,
+              content_type: "text"
+            }
+          DsEmailStructure.push(newStruc)
+          })
+          
+          Input.emails = DsEmailStructure
+          const dsData = JSON.stringify(Input);
+          console.log(dsData)
+          file.write(dsData);
+          file.end();
+        })
+        .then(() => {
+          console.log("GETS TO AXIOS")
+          const src = fs.createReadStream(
+            `./stream/allEmails${DsUser}Search.file`
+          );
+          const {size} = fs.statSync(`./stream/allEmails${DsUser}Search.file`)
+          axios({
+            method: "POST",
+            // header: {
+            //   'Content-Type': 'text/markdown',
+            //   'Content-Length': size,
+            // },
+            url: 
+              "http://ec2-34-219-168-114.us-west-2.compute.amazonaws.com/train_model",
+            data: Input
+          })
+          .then(dsRes => {
+            res.status(200).json({message: dsRes.data})
+          })
+          .catch(err => {
+            console.log(err);
+          });
+        })
+        .catch(err => {
+          console.log(err);
+          res.status(500).json({ message: "I don't like you" });
+        });
+    })
+    .catch(err => {
+      res.status(500).json({ message: "Vlad is mega poo poo", err });
+    });
+});
+// ********* END THE ROUTES WITH STREAMING ************
 
 // ********* THE NEW ROUTE WITH IMAP FOR TAGGING************
 router.post("/", (req, res) => {
@@ -126,7 +183,7 @@ router.post("/", (req, res) => {
         let difference = results.filter(x => !emailsUIDs.includes(x));
         let deletion = emailsUIDs.filter(x => !results.includes(x));
         if (err) throw err;
-        const emailsLeft = difference
+        const emailsLeft = difference;
 
         if (deletion.length > 0) {
           for (let emailUid of deletion) {

@@ -54,7 +54,7 @@ router.post("/stream", (req, res) => {
         })
         .catch(err => {
           console.log(err);
-          res.status(500).json({ message: "I don't like you" });
+          res.status(500).json({ message: "Server was unable to stream emails" });
         });
     });
 });
@@ -95,7 +95,6 @@ router.post("/train", (req, res) => {
           
           Input.emails = DsEmailStructure
           const dsData = JSON.stringify(Input);
-          console.log(dsData)
           file.write(dsData);
           file.end();
         })
@@ -124,11 +123,11 @@ router.post("/train", (req, res) => {
         })
         .catch(err => {
           console.log(err);
-          res.status(500).json({ message: "I don't like you" });
+          res.status(500).json({ message: "Server was unable to stream to DS" });
         });
     })
     .catch(err => {
-      res.status(500).json({ message: "Vlad is mega poo poo", err });
+      res.status(500).json({ message: "Server was unable to stream to DS", err });
     });
 });
 // ********* END THE ROUTES WITH STREAMING ************
@@ -203,19 +202,6 @@ router.post("/", (req, res) => {
           difference = difference.slice(-250);
           allFetched = false;
         }
-        // emailsUIDs === results;
-        // first round look for deleted uids.
-        // second round look for missing uids from database
-        // third round max out array at 500 emails
-        // results is an array of uids we can cut this array down and also create a new field in the table that tells us how many times we would need to do this process to get to the latest emails.
-        // prolly would be best to send something to the frontend in our res.status letting it know if this contains all emails or just partial.
-        // we could also just grab the last 100 emails because this is a ascn order array.  we can just change the array results to last x of emails.
-        // the idea call database and get all uids that are already added and subtract that from results then limit results to only 500 items.
-        // this is also helpful because we also know that if a uid is not in this list that we will need to delete it from our database as its been deleted.
-        // 1. call database with user_id to find UID
-        // 2. compare results with step 1 and reduce to x emails (500 should be good)
-        // 3. ????????
-        // 4. profit!
         for (let i = 0; i < difference.length; i++) {
           var f = imap.fetch(difference[i], { bodies: "", attributes: "" });
           f.on("message", function(msg, seqno) {
@@ -247,23 +233,6 @@ router.post("/", (req, res) => {
                   allMessages.push(addEmailObj);
                 } //ends parsed
               ); //ends .then on 111
-              //Sending the new message to DS for tagging
-              // const dataPackage = {
-              //   sender: parsed.from.value[0].address,
-              //   id: parsed.messageId,
-              //   subject: parsed.subject,
-              //   message: parsed.html
-              // };
-              // http
-              //   .post(
-              //     "http://LstmModel-env.4zqtqnkaex.us-east-1.elasticbeanstalk.com/api/tags",
-              //     dataPackage
-              //   )
-              //   .then(res => {
-              // })
-              // .catch(err => {
-              //   console.log("\n\n\nerr: ", err);
-              // });
             });
             msg.once("attributes", function(attrs) {});
             msg.once("end", function() {

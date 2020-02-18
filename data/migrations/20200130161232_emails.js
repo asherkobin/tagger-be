@@ -28,7 +28,7 @@ exports.up = function(knex) {
 
       tbl.text("email_body_text");
 
-      tbl.string("date");
+      tbl.integer("date");
 
       tbl.integer("uid");
 

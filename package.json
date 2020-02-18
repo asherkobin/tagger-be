@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "server": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cross-env DB_CONNECT=testing mocha"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,10 @@
   },
   "homepage": "https://github.com/Lambda-School-Labs/tagger-be#readme",
   "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "cross-env": "^7.0.0",
+    "mocha": "^7.0.1",
     "nodemon": "^1.19.4"
   },
   "dependencies": {
@@ -28,6 +32,7 @@
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "flatted": "^2.0.1",
     "fs": "0.0.1-security",
     "google-auth-library": "^5.6.0",
     "googleapis": "^45.0.0",
@@ -45,8 +50,8 @@
     "pg": "^7.14.0",
     "sqlite3": "^4.1.1",
     "supertest": "^4.0.2",
-    "update": "^0.7.4",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "xoauth2": "^1.2.0"
   },
   "engines": {
     "node": "12.x"

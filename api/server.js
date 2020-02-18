@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const messageRouter = require("./messages/message-router");
+const composeRouter = require("./Sender/compose-router")
 
 require("dotenv").config();
 
@@ -14,7 +15,8 @@ server.use(express.json());
 
 //ROUTERS
 
-server.use("/", messageRouter);
+server.use("/emails", messageRouter);
+server.use("/compose", composeRouter)
 
 //Use server function
 server.use(function(req, res, next) {

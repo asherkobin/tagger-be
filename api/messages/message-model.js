@@ -22,7 +22,7 @@ function getEmailsForDS(userId) {
 }
 
 function emails(id) {
-  return db("emails").orderBy("date", "asc").where("user_id", id);
+  return db("emails").orderBy("date", "desc").where("user_id", id);
 }
 
 function deleteEmail(uid) {

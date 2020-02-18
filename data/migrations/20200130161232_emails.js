@@ -12,7 +12,7 @@ exports.up = function(knex) {
       tbl.increments();
 
       tbl
-        .integer("message_id")
+        .string("message_id")
         .notNullable()
         .unique()
 
@@ -30,7 +30,7 @@ exports.up = function(knex) {
 
       tbl.string("date");
 
-      tbl.text("uid");
+      tbl.integer("uid");
 
       tbl
         .integer("user_id")

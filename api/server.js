@@ -9,7 +9,7 @@ require("dotenv").config();
 const server = express();
 
 //INIT SERVER
-server.use(cors());
+server.use(cors({ credentials: true, origin: ["http://localhost:3000", "https://tagger-lab.netlify.com"] }));
 server.use(helmet());
 server.use(express.json());
 

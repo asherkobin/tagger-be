@@ -6,11 +6,12 @@ const Imap = require("imap");
 const inspect = require("util").inspect;
 const simpleParser = require("mailparser").simpleParser;
 const fs = require("fs");
-const { parse, stringify } = require('flatted')
+const { parse, stringify } = require("flatted");
 
 const Users = require("../users/user-model");
 const Messages = require("./message-model");
 const Tags = require("../tags/tag-model");
+const Mail = require("../imap/imap-model")
 
 // ******* GLOBAL VARIABLES **********
 const http = rateLimit(axios.create(), {
@@ -54,7 +55,9 @@ router.post("/stream", (req, res) => {
         })
         .catch(err => {
           console.log(err);
-          res.status(500).json({ message: "Server was unable to stream emails" });
+          res
+            .status(500)
+            .json({ message: "Server was unable to stream emails" });
         });
     });
 });
@@ -67,8 +70,8 @@ router.post("/train", (req, res) => {
   let Input = {
     emails: [],
     address: email
-  }
-  let DsEmailStructure = []
+  };
+  let DsEmailStructure = [];
   Users.findUser(email)
     .then(user => {
       if (user) {
@@ -84,50 +87,56 @@ router.post("/train", (req, res) => {
         .then(emailsDs => {
           emailsDs.map(email => {
             const newStruc = {
-              uid : email.uid,
-              from : email.from,
-              msg : email.email_body_text,
-              subject : email.subject,
+              uid: email.uid,
+              from: email.from,
+              msg: email.email_body_text,
+              subject: email.subject,
               content_type: "text"
-            }
-          DsEmailStructure.push(newStruc)
-          })
-          
-          Input.emails = DsEmailStructure
+            };
+            DsEmailStructure.push(newStruc);
+          });
+
+          Input.emails = DsEmailStructure;
           const dsData = JSON.stringify(Input);
           file.write(dsData);
           file.end();
         })
         .then(() => {
-          console.log("GETS TO AXIOS")
+          console.log("GETS TO AXIOS");
           const src = fs.createReadStream(
             `./stream/allEmails${DsUser}Search.file`
           );
-          const {size} = fs.statSync(`./stream/allEmails${DsUser}Search.file`)
+          const { size } = fs.statSync(
+            `./stream/allEmails${DsUser}Search.file`
+          );
           axios({
             method: "POST",
             // header: {
             //   'Content-Type': 'text/markdown',
             //   'Content-Length': size,
             // },
-            url: 
+            url:
               "http://ec2-34-219-168-114.us-west-2.compute.amazonaws.com/train_model",
             data: Input
           })
-          .then(dsRes => {
-            res.status(200).json({message: dsRes.data})
-          })
-          .catch(err => {
-            console.log(err);
-          });
+            .then(dsRes => {
+              res.status(200).json({ message: dsRes.data });
+            })
+            .catch(err => {
+              console.log(err);
+            });
         })
         .catch(err => {
           console.log(err);
-          res.status(500).json({ message: "Server was unable to stream to DS" });
+          res
+            .status(500)
+            .json({ message: "Server was unable to stream to DS" });
         });
     })
     .catch(err => {
-      res.status(500).json({ message: "Server was unable to stream to DS", err });
+      res
+        .status(500)
+        .json({ message: "Server was unable to stream to DS", err });
     });
 });
 // ********* END THE ROUTES WITH STREAMING ************
@@ -172,10 +181,11 @@ router.post("/", (req, res) => {
   });
 
   function openInbox(cb) {
-    imap.openBox("INBOX", true, cb);
+    imap.openBox('[Gmail]/All Mail', true, cb);
   }
-
+  let addEmailObj;
   imap.once("ready", function() {
+    console.log(imap.namespaces)
     openInbox(function(err, box) {
       if (err) throw err;
       imap.search(["ALL"], function(err, results) {
@@ -210,7 +220,7 @@ router.post("/", (req, res) => {
             msg.on("body", function(stream, info) {
               simpleParser(stream, { bodies: "", attributes: "" }).then(
                 parsed => {
-                  let addEmailObj = {
+                  addEmailObj = {
                     message_id: parsed.messageId,
                     user_id: userId,
                     from: parsed.from.value[0].address,
@@ -222,22 +232,31 @@ router.post("/", (req, res) => {
                     date: parsed.date,
                     uid: difference[i]
                   };
-                  Messages.addEmail(addEmailObj)
-                    .then(message => {
-                      console.log("GOOD");
-                    })
-                    .catch(err => {
-                      console.log(err);
-                    });
-
-                  allMessages.push(addEmailObj);
+                  return addEmailObj
                 } //ends parsed
               ); //ends .then on 111
             });
-            msg.once("attributes", function(attrs) {});
+            msg.once("attributes", function(attrs) {
+              console.log(attrs)
+              const attributes = {
+                labels: attrs['x-gm-labels'].toString(),
+                gMsgId: attrs['x-gm-msgid'],
+                gmThreadID: attrs['x-gm-thrid']
+              }
+              const newEmail = {
+                ...addEmailObj,
+                ...attributes
+              }
+              Messages.addEmail(newEmail)
+              .then(message => {
+                console.log("GOOD");
+              })
+              .catch(err => {
+                console.log(err);
+              });
+            });
             msg.once("end", function() {
               console.log(prefix + "Finished");
-              let newArray = [];
             });
           }); //ends f.on message
         } //ends for loop
@@ -268,6 +287,59 @@ router.post("/", (req, res) => {
   });
 
   imap.connect();
+});
+
+//TEST
+
+router.post("/test", (req, res) => {
+  const { email, host, token } = req.body;
+  var imap = new Imap({
+    user: email,
+    password: "",
+    host: host,
+    port: 993,
+    tls: true,
+    xoauth2: token,
+    tlsOptions: { rejectUnauthorized: false },
+    debug: console.log
+  })
+  // let userId
+  // Users.findUser(email).then(user => {
+  //   if (user) {
+  //     Messages.getEmailIds(user.id).then(uid => {
+  //       uid.map(id => {
+  //         emailsUIDs.push(id.uid * 1);
+  //       });
+
+  //       userId = user.id;
+  //       return emailsUIDs, userId;
+  //     });
+  //   } else {
+  //     const emailObj = {
+  //       email
+  //     };
+  //     Users.addUser(emailObj).then(user => {
+  //       return (userId = user.id);
+  //     });
+  //   }
+  // });
+imap.once("ready", function (){
+  imap.getBoxes("/", function(err, boxes){
+    if (err) throw err;
+    console.log("getBoxes firing")
+    console.log(boxes)
+  })
+})
+imap.once("error", function(err) {
+  console.log(err);
+});
+
+imap.once("end", function() {
+  console.log("Connection ended");
+});
+
+imap.connect();
+
 });
 
 module.exports = router;

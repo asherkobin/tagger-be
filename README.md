@@ -1,5 +1,7 @@
 # API Documentation
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/5dc9b9433040acf353c0/maintainability)](https://codeclimate.com/github/Lambda-School-Labs/airbnb-unit-price-analysis-be/maintainability)
+
 #### Backend delpoyed at [Heroku](https://taggerhq.herokuapp.com/) <br>
 
 ## Getting started

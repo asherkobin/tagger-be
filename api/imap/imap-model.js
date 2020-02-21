@@ -7,7 +7,7 @@ module.exports = {
   getMail
 };
 
-function getMail(imap, userId) {
+function getMail(imap, userId, lastUid) {
   return new Promise((resolve, reject) => {
     var config = {
       imap: {
@@ -25,7 +25,7 @@ function getMail(imap, userId) {
       .connect(config)
       .then(function(connection) {
         return connection.openBox("[Gmail]/All Mail").then(function() {
-          var searchCriteria = ["All"];
+          var searchCriteria = ["ALL", ["UID", lastUid + ":*"]];
           var fetchOptions = {
             bodies: "",
             attributes: ""
@@ -54,6 +54,7 @@ function getMail(imap, userId) {
                   const oneMail = {
                     uid: obj.attributes.uid,
                     from: obj.from.value.map(obj => obj.address).join(","),
+                    name: obj.from.value.map(obj => obj.name).join(","),
                     to: obj.to.value.map(obj => obj.address).join(","),
                     subject: obj.subject,
                     email_body: obj.html,

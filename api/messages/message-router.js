@@ -142,41 +142,39 @@ router.post("/train", (req, res) => {
 
 // ********* THE NEW ROUTE WITH IMAP FOR TAGGING************
 
-router.post("/", (req, res) => {
-  const { email, host, token } = req.body;
+router.post("/", async (req, res) => {
+  try {
+    const { email, host, token } = req.body;
+    let userId;
+    let uid;
+    let newUserEmail;
 
-  let userId = null;
-  Users.findUser(email)
-    .then(user => {
-      if (user) {
-        console.log(user, "FINDING USER")
-        userId = user.id;
-        return userId;
-      } else {
-        const newUser = {
-          email: req.body.email
-        }
-        Users.addUser(newUser).then(user => {
-          console.log(user, "ADDING USER")
-          userId = user.id;
-          return userId;
-        });
-      }
-    })
-    .then(id => {
-      Mails.getMail(req.body, id)
-        .then(emails => {
-          res.status(200).json({
-            allEmailsFetched: {
-              fetched: true,
-              date: Date.now()
-            }
-          });
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    });
+    // find the user in the database, grab the id
+    const user = await Users.findUser(email);
+    if (user) {
+      userId = user.id;
+    } else {
+      newUserEmail = { email };
+      const newUser = await Users.addUser(newUserEmail);
+      newUser ? (userId = newUser.id) : null;
+    }
+
+    // check for the last email from the user, grab the uid
+    const lastEmail = await Messages.getLastEmailFromUser(userId);
+    lastEmail ? (uid = lastEmail.uid) : (uid = 1);
+
+    // get all the emails
+    const emails = await Mails.getMail(req.body, userId, uid);
+    emails
+      ? res
+          .status(200)
+          .json({ allEmailsFetched: { fetched: true, date: Date.now() } })
+      : res.status(400).json({ msg: "Emails failed to fetch." });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ success: false, err, msg: "The entire request failed." });
+  }
 });
 
 module.exports = router;

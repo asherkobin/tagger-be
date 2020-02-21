@@ -6,12 +6,11 @@ const Imap = require("imap");
 const inspect = require("util").inspect;
 const simpleParser = require("mailparser").simpleParser;
 const fs = require("fs");
-const { parse, stringify } = require("flatted");
 
 const Users = require("../users/user-model");
 const Messages = require("./message-model");
 const Tags = require("../tags/tag-model");
-const Mail = require("../imap/imap-model")
+const Mails = require("../imap/imap-model");
 
 // ******* GLOBAL VARIABLES **********
 const http = rateLimit(axios.create(), {
@@ -142,204 +141,42 @@ router.post("/train", (req, res) => {
 // ********* END THE ROUTES WITH STREAMING ************
 
 // ********* THE NEW ROUTE WITH IMAP FOR TAGGING************
+
 router.post("/", (req, res) => {
   const { email, host, token } = req.body;
-  const allMessages = [];
-  let allFetched = false;
 
-  var imap = new Imap({
-    user: email,
-    password: "",
-    host: host,
-    port: 993,
-    tls: true,
-    xoauth2: token,
-    tlsOptions: { rejectUnauthorized: false },
-    debug: console.log
-  });
-  let userId;
-  let emailsUIDs = [];
-
-  Users.findUser(email).then(user => {
-    if (user) {
-      Messages.getEmailIds(user.id).then(uid => {
-        uid.map(id => {
-          emailsUIDs.push(id.uid * 1);
-        });
-
+  let userId = null;
+  Users.findUser(email)
+    .then(user => {
+      if (user) {
+        console.log(user, "FINDING USER")
         userId = user.id;
-        return emailsUIDs, userId;
-      });
-    } else {
-      const emailObj = {
-        email
-      };
-      Users.addUser(emailObj).then(user => {
-        return (userId = user.id);
-      });
-    }
-  });
-
-  function openInbox(cb) {
-    imap.openBox('[Gmail]/All Mail', true, cb);
-  }
-  let addEmailObj;
-  imap.once("ready", function() {
-    console.log(imap.namespaces)
-    openInbox(function(err, box) {
-      if (err) throw err;
-      imap.search(["ALL"], function(err, results) {
-        let difference = results.filter(x => !emailsUIDs.includes(x));
-        let deletion = emailsUIDs.filter(x => !results.includes(x));
-        if (err) throw err;
-        const emailsLeft = difference;
-
-        if (deletion.length > 0) {
-          for (let emailUid of deletion) {
-            Messages.deleteEmail(emailUid)
-              .then(del => {
-                console.log("delete email");
-              })
-              .catch(err => {
-                console.log(err, "delete loop");
-              });
-          }
+        return userId;
+      } else {
+        const newUser = {
+          email: req.body.email
         }
-        if (difference.length === 0) {
-          difference = [results[0]];
-          allFetched = true;
-        } else if (difference.length > 250) {
-          difference = difference.slice(-250);
-          allFetched = false;
-        }
-        for (let i = 0; i < difference.length; i++) {
-          var f = imap.fetch(difference[i], { bodies: "", attributes: "" });
-          f.on("message", function(msg, seqno) {
-            // console.log("Message #%d", seqno);
-            var prefix = "(#" + seqno + ") ";
-            msg.on("body", function(stream, info) {
-              simpleParser(stream, { bodies: "", attributes: "" }).then(
-                parsed => {
-                  addEmailObj = {
-                    message_id: parsed.messageId,
-                    user_id: userId,
-                    from: parsed.from.value[0].address,
-                    name: parsed.headers.get("from").value[0].name,
-                    to: parsed.headers.get("to").text,
-                    subject: parsed.subject,
-                    email_body: parsed.html,
-                    email_body_text: parsed.text,
-                    date: parsed.date,
-                    uid: difference[i]
-                  };
-                  return addEmailObj
-                } //ends parsed
-              ); //ends .then on 111
-            });
-            msg.once("attributes", function(attrs) {
-              console.log(attrs)
-              const attributes = {
-                labels: attrs['x-gm-labels'].toString(),
-                gMsgId: attrs['x-gm-msgid'],
-                gmThreadID: attrs['x-gm-thrid']
-              }
-              const newEmail = {
-                ...addEmailObj,
-                ...attributes
-              }
-              Messages.addEmail(newEmail)
-              .then(message => {
-                console.log("GOOD");
-              })
-              .catch(err => {
-                console.log(err);
-              });
-            });
-            msg.once("end", function() {
-              console.log(prefix + "Finished");
-            });
-          }); //ends f.on message
-        } //ends for loop
-
-        f.once("error", function(err) {
-          console.log("Fetch error: " + err);
+        Users.addUser(newUser).then(user => {
+          console.log(user, "ADDING USER")
+          userId = user.id;
+          return userId;
         });
-        f.once("end", function() {
-          console.log("Done fetching all messages!");
+      }
+    })
+    .then(id => {
+      Mails.getMail(req.body, id)
+        .then(emails => {
           res.status(200).json({
             allEmailsFetched: {
-              fetched: allFetched,
+              fetched: true,
               date: Date.now()
             }
           });
-          imap.end();
+        })
+        .catch(err => {
+          console.log(err);
         });
-      });
     });
-  });
-
-  imap.once("error", function(err) {
-    console.log(err);
-  });
-
-  imap.once("end", function() {
-    console.log("Connection ended");
-  });
-
-  imap.connect();
-});
-
-//TEST
-
-router.post("/test", (req, res) => {
-  const { email, host, token } = req.body;
-  var imap = new Imap({
-    user: email,
-    password: "",
-    host: host,
-    port: 993,
-    tls: true,
-    xoauth2: token,
-    tlsOptions: { rejectUnauthorized: false },
-    debug: console.log
-  })
-  // let userId
-  // Users.findUser(email).then(user => {
-  //   if (user) {
-  //     Messages.getEmailIds(user.id).then(uid => {
-  //       uid.map(id => {
-  //         emailsUIDs.push(id.uid * 1);
-  //       });
-
-  //       userId = user.id;
-  //       return emailsUIDs, userId;
-  //     });
-  //   } else {
-  //     const emailObj = {
-  //       email
-  //     };
-  //     Users.addUser(emailObj).then(user => {
-  //       return (userId = user.id);
-  //     });
-  //   }
-  // });
-imap.once("ready", function (){
-  imap.getBoxes("/", function(err, boxes){
-    if (err) throw err;
-    console.log("getBoxes firing")
-    console.log(boxes)
-  })
-})
-imap.once("error", function(err) {
-  console.log(err);
-});
-
-imap.once("end", function() {
-  console.log("Connection ended");
-});
-
-imap.connect();
-
 });
 
 module.exports = router;

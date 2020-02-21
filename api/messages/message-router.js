@@ -169,11 +169,11 @@ router.post("/", async (req, res) => {
       ? res
           .status(200)
           .json({ allEmailsFetched: { fetched: true, date: Date.now() } })
-      : res.status(400).json({ msg: "Emails failed to fetch." });
+      : res.status(400).json({ fetched: false, msg: "Emails failed to fetch." });
   } catch (err) {
     res
       .status(500)
-      .json({ success: false, err, msg: "The entire request failed." });
+      .json({ fetched: false, err, msg: "The entire request failed." });
   }
 });
 

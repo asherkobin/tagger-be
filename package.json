@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "server": "nodemon index.js",
-    "test": "cross-env DB_CONNECT=testing mocha",
+    "testmocha": "cross-env DB_CONNECT=testing mocha",
+    "test": "jest --detectOpenHandles --forceExit",
     "coverage": "jest --coverage --detectOpenHandles --forceExit || true"
   },
   "jest": {

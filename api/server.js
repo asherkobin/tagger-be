@@ -19,6 +19,7 @@ server.use(function(req, res, next) {
 
 server.use(helmet());
 server.use(express.json());
+server.timeout = 60*10*1000
 
 //ROUTERS
 server.use("/emails", messageRouter);

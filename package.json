@@ -4,7 +4,7 @@
   "description": "🚫 Note: All lines that start with 🚫 are instructions and should be deleted before this is posted to your portfolio. This is intended to be a guideline. Feel free to add your own flare to it.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node --max_old_space_size=8192 index.js",
     "server": "nodemon index.js",
     "test": "cross-env DB_CONNECT=testing mocha"
   },

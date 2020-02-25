@@ -1,11 +1,89 @@
 const imaps = require("imap-simple");
 const _ = require("underscore");
 const simpleParser = require("mailparser").simpleParser;
-const Messages = require("../messages/message-model")
+const Messages = require("../messages/message-model");
 
 module.exports = {
-  getMail
+  getMail,
+  getBoxes
 };
+
+function imapNestedFolders(folders) {
+  var FOLDERS = [];
+  var folder = {};
+
+  for (var key in folders) {
+    if (folders[key].attribs.indexOf("\\HasChildren") > -1) {
+      var children = imapNestedFolders(folders[key].children);
+
+      folder = {
+        name: key,
+        children: children
+      };
+    } else {
+      folder = {
+        name: key,
+        children: null
+      };
+    }
+    FOLDERS.push(folder);
+  }
+  return FOLDERS;
+}
+
+function getBoxes(imap) {
+  let folders = [];
+  var config = {
+    imap: {
+      user: imap.email,
+      password: "",
+      host: imap.host,
+      port: 993,
+      tls: true,
+      xoauth2: imap.token,
+      tlsOptions: { rejectUnauthorized: false },
+      debug: console.log
+    }
+  };
+  imaps.connect(config).then(function(connection) {
+    return connection.getBoxes(function(err, boxes) {
+      try {
+        folders.push(imapNestedFolders(boxes));
+        console.log(folders, "THIS IS IN GET BOXESS");
+        return folders;
+      } catch (err) {
+        throw err;
+      }
+    });
+  });
+}
+// function getBoxes(imap) {
+//   var folders = []
+//   return new Promise((resolve, reject) => {
+//     var config = {
+//       imap: {
+//         user: imap.email,
+//         password: "",
+//         host: imap.host,
+//         port: 993,
+//         tls: true,
+//         xoauth2: imap.token,
+//         tlsOptions: { rejectUnauthorized: false },
+//         debug: console.log
+//       }
+//     };
+//     imaps.connect(config).then(function(connection) {
+//       connection.getBoxes().then(function(err, boxes) {
+//         connection.end()
+//         folders = imapNestedFolders(boxes);
+//         console.log(folders)
+//         resolve(folders)
+//       });
+//     }).catch(err => {
+//       reject(err)
+//     })
+//   });
+// }
 
 function getMail(imap, userId, lastUid) {
   return new Promise((resolve, reject) => {
@@ -67,12 +145,14 @@ function getMail(imap, userId, lastUid) {
                     gMsgId: obj.attributes["x-gm-msgid"],
                     gmThreadID: obj.attributes["x-gm-thrid"],
                     user_id: userId
-                  }
-                  Messages.addEmail(oneMail).then(res => {
-                      console.log("Good")
-                  }).catch(err => {
-                      console.log(err)
-                  })
+                  };
+                  Messages.addEmail(oneMail)
+                    .then(res => {
+                      console.log(`${uid} was added`);
+                    })
+                    .catch(err => {
+                      console.log(err);
+                    });
                 });
                 resolve(d);
               });

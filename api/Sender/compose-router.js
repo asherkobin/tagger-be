@@ -1,5 +1,4 @@
 const router = require("express").Router();
-
 const nodemailer = require("nodemailer");
 
 router.post("/", (req, res) => {
@@ -10,12 +9,14 @@ router.post("/", (req, res) => {
     host: host, //"smtp.gmail.com",
     secure: "true",
     port: port, // "465",
+     
     auth: {
       type: "OAuth2", //Authentication type
       user: userEmail, //process.env.LABS20,
       clientId: process.env.CLIENTID,
       clientSecret: process.env.CLIENTSECRET,
-      refreshToken: process.env.REFRESHTOKEN
+      refreshToken: process.env.REFRESHTOKEN,
+      accessToken: token
     }
   });
 
@@ -33,9 +34,11 @@ router.post("/", (req, res) => {
       console.log(e);
     } else {
       console.log(r);
+      r.status(200).json({ message: "email sent" });
     }
     transporter.close();
   });
+
 });
 
 module.exports = router;

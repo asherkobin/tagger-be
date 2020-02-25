@@ -9,11 +9,13 @@ const Users = require("../users/user-model");
 const Messages = require("./message-model");
 const Tags = require("../tags/tag-model");
 const Mails = require("../imap/imap-model");
+const auth = require("../auth/authMiddleware");
 
-// ********* GLOBAL VARIABLES **********
+// ******* GLOBAL VARIABLES **********
+
 const http = rateLimit(axios.create(), {
-  maxRequests: 1,
-  perMilliseconds: 1750
+    maxRequests: 1,
+    perMilliseconds: 1750
 });
 http.getMaxRPS();
 
@@ -46,8 +48,7 @@ router.post("/stream", async (req, res) => {
       .status(500)
       .json({ message: "Server was unable to stream emails", err });
   }
-});
-
+})
 // SEND STREAM TO DS
 
 router.post("/train", async (req, res) => {
@@ -151,26 +152,26 @@ router.post("/predict", async (req, res) => {
 
 // ********* THE NEW ROUTE WITH IMAP FOR TAGGING*********
 
-router.post("/", async (req, res) => {
-  try {
-    const { email, host, token } = req.body;
-    let userId;
-    let uid;
-    let newUserEmail;
+router.post("/", auth.auth, async (req, res) => {
+    try {
+        const { email, host, token } = req.body;
+        let userId;
+        let uid;
+        let newUserEmail;
 
-    // find the user in the database, grab the id
-    const user = await Users.findUser(email);
-    if (user) {
-      userId = user.id;
-    } else {
-      newUserEmail = { email };
-      const newUser = await Users.addUser(newUserEmail);
-      newUser ? (userId = newUser.id) : null;
-    }
+        // find the user in the database, grab the id
+        const user = await Users.findUser(email);
+        if (user) {
+            userId = user.id;
+        } else {
+            newUserEmail = { email };
+            const newUser = await Users.addUser(newUserEmail);
+            newUser ? (userId = newUser.id) : null;
+        }
 
-    // check for the last email from the user, grab the uid
-    const lastEmail = await Messages.getLastEmailFromUser(userId);
-    lastEmail ? (uid = lastEmail.uid) : (uid = 1);
+        // check for the last email from the user, grab the uid
+        const lastEmail = await Messages.getLastEmailFromUser(userId);
+        lastEmail ? (uid = lastEmail.uid) : (uid = 1);
 
     // get all the emails
     const emails = await Mails.getMail(req.body, userId, uid);

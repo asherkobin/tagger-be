@@ -9,7 +9,7 @@ const Users = require("../users/user-model");
 const Messages = require("./message-model");
 const Tags = require("../tags/tag-model");
 const Mails = require("../imap/imap-model");
-const auth = require("../auth/authMiddleware");
+const { auth } = require("../auth/authMiddleware");
 
 // ******* GLOBAL VARIABLES **********
 
@@ -22,7 +22,7 @@ http.getMaxRPS();
 // ********* THE ROUTES WITH STREAMING *********
 
 // CREATE STREAM FILE
-router.post("/stream", async (req, res) => {
+router.post("/stream", auth, async (req, res) => {
   try {
     const { email } = req.body;
     let userId;
@@ -51,7 +51,7 @@ router.post("/stream", async (req, res) => {
 })
 // SEND STREAM TO DS
 
-router.post("/train", async (req, res) => {
+router.post("/train", auth, async (req, res) => {
   try {
     const { email } = req.body;
     let DsUser;
@@ -107,7 +107,7 @@ router.post("/train", async (req, res) => {
   }
 });
 
-router.post("/predict", async (req, res) => {
+router.post("/predict", auth, async (req, res) => {
   try {
     const { email, uid, from, msg } = req.body;
     let Input = {
@@ -152,7 +152,7 @@ router.post("/predict", async (req, res) => {
 
 // ********* THE NEW ROUTE WITH IMAP FOR TAGGING*********
 
-router.post("/", auth.auth, async (req, res) => {
+router.post("/", auth, async (req, res) => {
     try {
         const { email, host, token } = req.body;
         let userId;

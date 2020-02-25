@@ -46,7 +46,7 @@ function getBoxes(imap) {
     }
   };
   imaps.connect(config).then(function(connection) {
-    return connection.getBoxes(function(err, boxes) {
+    connection.getBoxes(function(err, boxes) {
       try {
         folders.push(imapNestedFolders(boxes));
         console.log(folders, "THIS IS IN GET BOXESS");

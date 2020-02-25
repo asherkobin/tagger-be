@@ -3,6 +3,7 @@ const router = require("express").Router();
 const axios = require("axios");
 const rateLimit = require("axios-rate-limit");
 const fs = require("fs");
+const imaps = require("imap-simple");
 
 // ********* MODELS *********
 const Users = require("../users/user-model");
@@ -142,7 +143,9 @@ router.post("/predict", async (req, res) => {
     file.write(dsData);
     file.end();
 
-    const src = await fs.createReadStream(`./stream/allEmails${DsUser}Predict.file`);
+    const src = await fs.createReadStream(
+      `./stream/allEmails${DsUser}Predict.file`
+    );
 
     axios({
       method: "POST",
@@ -157,7 +160,9 @@ router.post("/predict", async (req, res) => {
         res.status(500).json({ message: "Unable to complete search", err });
       });
   } catch (err) {
-    res.status(500).json({ message: "Server was unable to submit search", err });
+    res
+      .status(500)
+      .json({ message: "Server was unable to submit search", err });
   }
 });
 
@@ -238,21 +243,68 @@ router.post("/", async (req, res) => {
   }
 });
 
+function imapNestedFolders(folders) {
+  var FOLDERS = [];
+  var folder = {};
+
+  for (var key in folders) {
+    if (folders[key].attribs.indexOf("\\HasChildren") > -1) {
+      var children = imapNestedFolders(folders[key].children);
+
+      folder = {
+        name: key,
+        children: children
+      };
+    } else {
+      folder = {
+        name: key,
+        children: null
+      };
+    }
+    FOLDERS.push(folder);
+  }
+  return FOLDERS;
+}
+
 router.post("/boxes", async (req, res) => {
   try {
     const { email, host, token } = req.body;
     // get all boxes
-    const boxes = await Mails.getBoxes(req.body);
-    console.log(boxes, "THIS IS WHAT IM GETTING BACK");
-    boxes
-      ? res.status(200).json(boxes)
-      : res
-          .status(400)
-          .json({
+    // const boxes = await Mails.getBoxes(req.body);
+    let folders = [];
+    var config = {
+      imap: {
+        user: email,
+        password: "",
+        host: host,
+        port: 993,
+        tls: true,
+        xoauth2: token,
+        tlsOptions: { rejectUnauthorized: false },
+        debug: console.log
+      }
+    };
+    imaps.connect(config).then(function(connection) {
+      connection.getBoxes(function(err, boxes) {
+        try {
+          folders.push(imapNestedFolders(boxes));
+          console.log(folders, "THIS IS IN GET BOXESS");
+          return folders;
+        } catch (err) {
+          throw err;
+        }
+      });
+    });
+    console.log(folders, "THIS IS WHAT IM GETTING BACK");
+    setTimeout(() => {
+      folders
+        ? res.status(200).json(folders)
+        : res.status(400).json({
             fetched: false,
             msg: "Emails failed to fetch.",
             THISISBOXES: boxes
           });
+    }, 1000);
   } catch (err) {
     res
       .status(500)

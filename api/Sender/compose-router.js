@@ -1,23 +1,26 @@
 const router = require("express").Router();
-const auth = require("../auth/authMiddleware");
 const nodemailer = require("nodemailer");
 
-router.post("/", auth.auth, (req, res) => {
-    const { service, host, port, userEmail, receiver, subject, body } = req.body;
 
-    let transporter = nodemailer.createTransport({
-        service: service, //"gmail",
-        host: host, //"smtp.gmail.com",
-        secure: "true",
-        port: port, // "465",
-        auth: {
-            type: "OAuth2", //Authentication type
-            user: userEmail, //process.env.LABS20,
-            clientId: process.env.CLIENTID,
-            clientSecret: process.env.CLIENTSECRET,
-            refreshToken: process.env.REFRESHTOKEN
-        }
-    });
+router.post("/", (req, res) => {
+  const { service, host, port, userEmail, receiver, subject, body, token } = req.body;
+  
+  let transporter = nodemailer.createTransport({
+    service: service, //"gmail",
+    host: host, //"smtp.gmail.com",
+    secure: "true",
+    port: port, // "465",
+     
+    auth: {
+      type: "OAuth2", //Authentication type
+      user: userEmail, //process.env.LABS20,
+      clientId: process.env.CLIENTID,
+      clientSecret: process.env.CLIENTSECRET,
+      refreshToken: process.env.REFRESHTOKEN,
+      accessToken: token
+    }
+  });
+
 
     let mailOptions = {
         from: userEmail,
@@ -26,14 +29,17 @@ router.post("/", auth.auth, (req, res) => {
         text: body
     };
 
-    transporter.sendMail(mailOptions, function(e, r) {
-        if (e) {
-            console.log(e);
-        } else {
-            console.log(r);
-        }
-        transporter.close();
-    });
+
+  transporter.sendMail(mailOptions, function(e, r) {
+    if (e) {
+      console.log(e);
+    } else {
+      console.log(r);
+      r.status(200).json({ message: "email sent" });
+    }
+    transporter.close();
+  });
+
 });
 
 module.exports = router;

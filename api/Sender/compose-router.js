@@ -21,12 +21,14 @@ router.post("/", (req, res) => {
     }
   });
 
-  let mailOptions = {
-    from: userEmail,
-    to: receiver,
-    subject: subject,
-    text: body
-  };
+
+    let mailOptions = {
+        from: userEmail,
+        to: receiver,
+        subject: subject,
+        text: body
+    };
+
 
   transporter.sendMail(mailOptions, function(e, r) {
     if (e) {
@@ -37,6 +39,7 @@ router.post("/", (req, res) => {
     }
     transporter.close();
   });
+
 });
 
 module.exports = router;

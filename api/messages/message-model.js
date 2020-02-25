@@ -7,6 +7,7 @@ module.exports = {
   getEmailsForDS,
   addEmail,
   deleteAllEmailsByUser,
+  updateEmail,
   deleteEmail,
   getTagsForMessage,
   getMessageTagsFromUser,
@@ -22,7 +23,16 @@ function getEmailsForDS(userId) {
 }
 
 function emails(id) {
-  return db("emails").orderBy("date", "desc").where("user_id", id);
+  return db("emails")
+    .orderBy("date", "desc")
+    .where("user_id", id)
+}
+
+function updateEmail(userId, uid, changes) {
+  return db("emails")
+  .where("user_id", userId)
+  .andWhere("uid", uid)
+  .update(changes)
 }
 
 function deleteEmail(uid) {

@@ -1,21 +1,17 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const messageRouter = require("./messages/message-router");
 const composeRouter = require("./Sender/compose-router")
 
-require("dotenv").config();
 
 const server = express();
-
-//INIT SERVER
-// server.use(cors({ credentials: true, origin: ["http://localhost:3000", "https://tagger-lab.netlify.com"] }));
 
 server.use(cors())
 
 server.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", req.headers.origin); //req.headers.origin // '*'
-  // res.header("Access-Control-Allow-Origin", '*'); //req.headers.origin // '*'
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Set-Cookie");
   res.header('Access-Control-Allow-Credentials', true)
   next();
@@ -25,26 +21,8 @@ server.use(helmet());
 server.use(express.json());
 
 //ROUTERS
-
 server.use("/emails", messageRouter);
 server.use("/compose", composeRouter)
-
-// //Use server function
-// server.use(function(req, res, next) {
-//   // place the headers in the server file so it
-//   //would be universal throught the code
-//   res.header("Access-Control-Allow-Origin", "*");
-//   res.header(
-//     "Access-Control-Allow-Headers",
-//     "Origin, X-Requested-With, Content-Type, Accept"
-//   );
-//   next();
-//   // console.log(header)
-// });
-
-
-
-
 
 
 //test default api

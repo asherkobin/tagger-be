@@ -148,7 +148,7 @@ function getMail(imap, userId, lastUid) {
                   };
                   Messages.addEmail(oneMail)
                     .then(res => {
-                      console.log(`${uid} was added`);
+                      console.log(`${obj.attributes.uid} was added`);
                     })
                     .catch(err => {
                       console.log(err);

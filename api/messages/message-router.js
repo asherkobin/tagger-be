@@ -156,7 +156,7 @@ router.post("/", auth, async (req, res) => {
     try {
         const { email, host, token } = req.body;
         let userId;
-        let uid;
+        let uid = 1;
         let newUserEmail;
 
         // find the user in the database, grab the id
@@ -171,7 +171,7 @@ router.post("/", auth, async (req, res) => {
 
         // check for the last email from the user, grab the uid
         const lastEmail = await Messages.getLastEmailFromUser(userId);
-        lastEmail ? (uid = lastEmail.uid) : (uid = 1);
+        lastEmail ? (uid = lastEmail.uid) : null;
 
     // get all the emails
     const emails = await Mails.getMail(req.body, userId, uid);

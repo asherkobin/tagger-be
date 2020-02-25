@@ -294,6 +294,7 @@ router.post("/boxes", async (req, res) => {
           throw err;
         }
       });
+      connection.end();
     });
     console.log(folders, "THIS IS WHAT IM GETTING BACK");
     setTimeout(() => {

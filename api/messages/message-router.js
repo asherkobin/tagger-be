@@ -100,10 +100,12 @@ router.post("/train", (req, res) => {
             data: src
           })
             .then(dsRes => {
-              res.status(200).json(dsRes.data)
+              res.status(200).json(dsRes.data);
             })
             .catch(err => {
-              res.status(500).json({message: "Server was unable to connect to DS", err})
+              res
+                .status(500)
+                .json({ message: "Server was unable to connect to DS", err });
             });
         })
         .catch(err => {
@@ -117,6 +119,46 @@ router.post("/train", (req, res) => {
         .status(500)
         .json({ message: "Server was unable to stream to DS", err });
     });
+});
+
+router.post("/predict", async (req, res) => {
+  try {
+    const { email, uid, from, msg } = req.body;
+    let Input = {
+      address: email,
+      emails: [
+        {
+          uid: uid || "",
+          from: from || "",
+          msg: msg || "",
+          content_type: ""
+        }
+      ]
+    };
+    const file = await fs.createWriteStream(
+      `./stream/allEmails${DsUser}Predict.file`
+    );
+    const dsData = await JSON.stringify(Input);
+    file.write(dsData);
+    file.end();
+
+    const src = await fs.createReadStream(`./stream/allEmails${DsUser}Predict.file`);
+
+    axios({
+      method: "POST",
+      url: "http://ec2-54-185-247-144.us-west-2.compute.amazonaws.com/predict",
+      data: src
+    })
+      .then(response => {
+        res.status(200).json(response);
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(500).json({ message: "Unable to complete search", err });
+      });
+  } catch (err) {
+    res.status(500).json({ message: "Server was unable to submit search", err });
+  }
 });
 
 router.post("/testTrain", async (req, res) => {
@@ -133,17 +175,17 @@ router.post("/testTrain", async (req, res) => {
       ? (DsUser = user.id)
       : res.status(404).json({ message: "User not Found" });
 
-    const streamData = await Messages.emails(DsUser)
+    const streamData = await Messages.emails(DsUser);
     streamData.map(email => {
-        const newStruc = {
-          uid: email.uid,
-          from: email.from,
-          msg: email.email_body_text,
-          subject: email.subject,
-          content_type: " "
-        };
-        DsEmailStructure.push(newStruc);
-    })
+      const newStruc = {
+        uid: email.uid,
+        from: email.from,
+        msg: email.email_body_text,
+        subject: email.subject,
+        content_type: " "
+      };
+      DsEmailStructure.push(newStruc);
+    });
     Input.emails = DsEmailStructure;
     const dsData = JSON.stringify(Input);
     file.write(dsData);
@@ -152,7 +194,7 @@ router.post("/testTrain", async (req, res) => {
       `./stream/allEmails${DsUser}Search.file`
     );
   } catch {
-    res.status(500).json({ message: "Server was unable to send data to DS" })
+    res.status(500).json({ message: "Server was unable to send data to DS" });
   }
 });
 // ********* END THE ROUTES WITH STREAMING *********
@@ -200,16 +242,17 @@ router.post("/boxes", async (req, res) => {
   try {
     const { email, host, token } = req.body;
     // get all boxes
-    const boxes = await Mails.getBoxes(req.body)
-    console.log(boxes, "THIS IS WHAT IM GETTING BACK")
+    const boxes = await Mails.getBoxes(req.body);
+    console.log(boxes, "THIS IS WHAT IM GETTING BACK");
     boxes
-      ? res
-          .status(200)
-          .json(boxes)
+      ? res.status(200).json(boxes)
       : res
           .status(400)
-          .json({ fetched: false, msg: "Emails failed to fetch.", THISISBOXES: boxes });
-
+          .json({
+            fetched: false,
+            msg: "Emails failed to fetch.",
+            THISISBOXES: boxes
+          });
   } catch (err) {
     res
       .status(500)

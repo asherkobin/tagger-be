@@ -108,9 +108,9 @@ router.post("/train", auth, async (req, res) => {
   }
 });
 
-router.post("/predict", auth, async (req, res) => {
+router.post("/predict", async (req, res) => {
   try {
-    const { email, uid, from, msg } = req.body;
+    const { email, uid, from, msg, subject } = req.body;
     let Input = {
       address: email,
       emails: [
@@ -118,29 +118,32 @@ router.post("/predict", auth, async (req, res) => {
           uid: uid || " ",
           from: from || " ",
           msg: msg || " ",
+          subject: subject || " ",
           content_type: " "
         }
       ]
     };
+    // Creates file for streaming
     const file = await fs.createWriteStream(`./stream/Predict.file`);
     const dsData = JSON.stringify(Input);
     file.write(dsData);
     file.end();
-
-    const src = await fs.createReadStream(`./stream/Predict.file`);
-
-    axios({
-      method: "POST",
-      url: "ec2-18-221-62-214.us-east-2.compute.amazonaws.com/predict",
-      data: dsData
-    })
-      .then(response => {
-        res.status(200).json(response);
+    setTimeout(async () => {
+      const src = await fs.createReadStream(`./stream/Predict.file`);
+      axios({
+        method: "POST",
+        url:
+          "http://ec2-54-185-247-144.us-west-2.compute.amazonaws.com/predict",
+        data: src
       })
-      .catch(err => {
-        console.log(err);
-        res.status(500).json({ message: "Unable to complete search" });
-      });
+        .then(response => {
+          res.status(200).json(response.data);
+        })
+        .catch(err => {
+          console.log(err);
+          res.status(500).json({ message: "Unable to complete search" });
+        });
+    }, 1000);
   } catch (err) {
     console.log(err);
     res

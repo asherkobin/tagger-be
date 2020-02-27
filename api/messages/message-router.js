@@ -98,8 +98,8 @@ router.post("/train", auth, async (req, res) => {
       data: src
     });
     post
-      ? res.status(200).json(post.data)
-      : res
+    ? res.status(200).json({ message: `Trained a model for ${email}` })
+    : res
           .status(500)
           .json({ message: "Server was unable to connect to DS" });
 

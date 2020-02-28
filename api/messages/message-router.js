@@ -28,7 +28,6 @@ router.post("/stream", auth, async (req, res) => {
   try {
     const { email } = req.body;
     let userId;
-    let filesWritten = false;
 
     // Grabs User Id
     const user = await Users.findUser(email);
@@ -42,18 +41,16 @@ router.post("/stream", auth, async (req, res) => {
     const data = await JSON.stringify(emails);
     if (data) {
       file.write(data);
-      file.end();
-      filesWritten = true;
-    }
-    console.log(filesWritten, "THE BOOOL");
-    // Creates Readable stream and pipes
-    while (filesWritten && data) {
-      console.log("IT WRITES")
-      const src = await fs.createReadStream(`./stream/allEmails${userId}.file`);
-      if (src) {
-        src.pipe(res);
-        filesWritten = false;
-      }
+      file.end(async () => {
+        // Creates Readable stream and pipes
+        const src = await fs.createReadStream(
+          `./stream/allEmails${userId}.file`
+        );
+        if (src) {
+          src.pipe(res);
+          filesWritten = false;
+        }
+      });
     }
   } catch (err) {
     console.log(err);
@@ -100,14 +97,11 @@ router.post("/train", async (req, res) => {
       `./stream/allEmails${DsUser}Search.file`
     );
     file.write(dsData);
-    file.end();
-
-    setTimeout(async () => {
+    file.end(async () => {
       // Creates readable file
       const src = await fs.createReadStream(
         `./stream/allEmails${DsUser}Search.file`
       );
-
       // Posts read stream to DS Api
       const post = await axios({
         method: "POST",
@@ -120,7 +114,7 @@ router.post("/train", async (req, res) => {
         : res
             .status(500)
             .json({ message: "Server was unable to connect to DS" });
-    }, 1000);
+    });
   } catch {
     res.status(500).json({ message: "Server was unable to send data to DS" });
   }
@@ -146,25 +140,20 @@ router.post("/predict", async (req, res) => {
     const file = await fs.createWriteStream(`./stream/Predict.file`);
     const dsData = JSON.stringify(Input);
     file.write(dsData);
-    file.end();
-
-    setTimeout(async () => {
+    file.end(async () => {
+      // Creates read stream
       const src = await fs.createReadStream(`./stream/Predict.file`);
-
-      axios({
+      // Posts search to DS
+      const post = await axios({
         method: "POST",
         url:
           "http://ec2-54-185-247-144.us-west-2.compute.amazonaws.com/predict",
         data: src
-      })
-        .then(response => {
-          res.status(200).json(response.data);
-        })
-        .catch(err => {
-          console.log(err);
-          res.status(500).json({ message: "Unable to complete search" });
-        });
-    }, 1000);
+      });
+      post
+        ? res.status(200).json(response.data)
+        : res.status(500).json({ message: "Unable to complete search" });
+    });
   } catch (err) {
     console.log(err);
     res

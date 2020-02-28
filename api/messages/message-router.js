@@ -11,7 +11,7 @@ const Messages = require("./message-model");
 const Tags = require("../tags/tag-model");
 const Mails = require("../imap/imap-model");
 const { auth } = require("../auth/auth-middleware");
-// const { imapNestedFolders } = require("./message-middleware")
+const { imapNestedFolders } = require("./message-middleware");
 
 // ********** GLOBAL VARIABLES **********
 
@@ -60,7 +60,7 @@ router.post("/stream", auth, async (req, res) => {
 });
 
 // SEND STREAM TO DS
-router.post("/train", async (req, res) => {
+router.post("/train", auth, async (req, res) => {
   try {
     const { email } = req.body;
     let DsUser;
@@ -120,9 +120,10 @@ router.post("/train", async (req, res) => {
 });
 
 // SMART SEARCH PREDICTION
-router.post("/predict", async (req, res) => {
+router.post("/predict", auth, async (req, res) => {
   try {
     const { email, uid, from, msg, subject } = req.body;
+    let DsUser;
     let Input = {
       address: email,
       emails: [
@@ -135,6 +136,13 @@ router.post("/predict", async (req, res) => {
         }
       ]
     };
+
+    // Grabs User Id
+    const user = await Users.findUser(email);
+    if (user) {
+      DsUser = user.id;
+    }
+
     // Creates file for streaming
     const file = await fs.createWriteStream(`./stream/Predict.file`);
     const dsData = JSON.stringify(Input);
@@ -150,7 +158,13 @@ router.post("/predict", async (req, res) => {
         data: src
       });
       post
-        ? res.status(200).json(response.data)
+        ? Messages.getResults(DsUser, post.data.prediction)
+            .then(results => {
+              res.status(200).json(results);
+            })
+            .catch(err => {
+              res.status(500).json({ message: "Unable to get results" });
+            })
         : res.status(500).json({ message: "Unable to complete search" });
     });
   } catch (err) {
@@ -202,30 +216,8 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-function imapNestedFolders(folders) {
-  var FOLDERS = [];
-  var folder = {};
-
-  for (var key in folders) {
-    if (folders[key].attribs.indexOf("\\HasChildren") > -1) {
-      var children = imapNestedFolders(folders[key].children);
-
-      folder = {
-        name: key,
-        children: children
-      };
-    } else {
-      folder = {
-        name: key,
-        children: null
-      };
-    }
-    FOLDERS.push(folder);
-  }
-  return FOLDERS;
-}
 // GETS ALL BOXES
-router.post("/boxes", async (req, res) => {
+router.post("/boxes", auth, async (req, res) => {
   try {
     const { email, host, token } = req.body;
     let folders = [];

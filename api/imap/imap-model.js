@@ -40,7 +40,7 @@ function getMail(imap, userId, lastUid) {
                   var idHeader = "uid: " + id + "\r\n";
                   var attributes = email.attributes;
                   simpleParser(idHeader + all.body, (err, mail) => {
-                    console.log("SIMPLER PARSER IS HERE")
+                    console.log("SIMPLER PARSER IS HERE");
                     const fullEmail = {
                       ...mail,
                       attributes
@@ -53,12 +53,18 @@ function getMail(imap, userId, lastUid) {
                 .then(data => {
                   connection.end();
                   let d = data.map(obj => {
-                    console.log(obj.to,"THIS IS THE BUNK")
+                    console.log(obj.to, "THIS IS THE BUNK");
+                    let to;
+                    if (obj.to.value !== undefined) {
+                      to = obj.to.value.map(obj => obj.address).join(",");
+                    } else {
+                      to = [];
+                    }
                     const oneMail = {
                       uid: obj.attributes.uid,
                       from: obj.from.value.map(obj => obj.address).join(","),
                       name: obj.from.value.map(obj => obj.name).join(","),
-                      to: obj.to.value.map(obj => obj.address).join(","),
+                      to: to,
                       subject: obj.subject,
                       email_body: obj.html,
                       email_body_text: obj.text,

@@ -48,7 +48,6 @@ router.post("/stream", auth, async (req, res) => {
         );
         if (src) {
           src.pipe(res);
-          filesWritten = false;
         }
       });
     }
@@ -262,7 +261,7 @@ router.post("/boxes", async (req, res) => {
             fetched: false,
             msg: "Emails failed to fetch."
           });
-    }, 5000);
+    }, 3000);
   } catch (err) {
     res
       .status(500)

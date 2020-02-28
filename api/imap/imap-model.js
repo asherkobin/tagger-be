@@ -55,7 +55,7 @@ function getMail(imap, userId, lastUid) {
                   let d = data.map(obj => {
                     console.log(obj.to, "THIS IS THE BUNK");
                     let to;
-                    if (obj.to.value !== undefined) {
+                    if (!obj.to.value) {
                       to = obj.to.value.map(obj => obj.address).join(",");
                     } else {
                       to = [];

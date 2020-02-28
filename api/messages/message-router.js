@@ -142,7 +142,6 @@ router.post("/predict", async (req, res) => {
         }
       ]
     };
-
     // Creates file for streaming
     const file = await fs.createWriteStream(`./stream/Predict.file`);
     const dsData = JSON.stringify(Input);

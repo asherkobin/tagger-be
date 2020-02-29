@@ -120,7 +120,7 @@ router.post("/train", auth, async (req, res) => {
 });
 
 // SMART SEARCH PREDICTION
-router.post("/predict", auth, async (req, res) => {
+router.post("/predict", async (req, res) => {
   try {
     const { email, uid, from, msg, subject } = req.body;
     let DsUser;
@@ -185,7 +185,7 @@ router.post("/", auth, async (req, res) => {
     let uid = 1;
     let newUserEmail;
 
-    req.setTimeout(600000);
+    req.setTimeout(600000*6);
     // Find the user in the database, grab the id
     const user = await Users.findUser(email);
     if (user) {

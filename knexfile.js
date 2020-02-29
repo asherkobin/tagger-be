@@ -12,6 +12,15 @@ module.exports = {
       directory: "./data/seeds"
     },
     pool: {
+      "min": 2,
+      "max": 100,
+      "propagateCreateError": false,
+      "createTimeoutMillis": 3000,
+      "acquireTimeoutMillis": 30000,
+      "idleTimeoutMillis": 30000,
+      "reapIntervalMillis": 1000,
+      "createRetryIntervalMillis": 100,
+      "propagateCreateError": false,
       afterCreate: (conn, done) => {
         conn.run("PRAGMA foreign_keys = ON", done);
       }

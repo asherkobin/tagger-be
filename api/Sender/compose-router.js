@@ -2,7 +2,7 @@ const router = require("express").Router();
 const nodemailer = require("nodemailer");
 
 router.post("/", (req, res) => {
-  const { service, host, port, userEmail, receiver, subject, body, cc, bcc } = req.body;
+  const { service, host, port, userEmail, receiver, subject, body, cc, bcc, token } = req.body;
 
   let transporter = nodemailer.createTransport({
     service: service, //"gmail",

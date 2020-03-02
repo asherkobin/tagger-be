@@ -16,12 +16,12 @@ module.exports = {
 };
 
 function getResults(userId, results) {
-  const numArray = results.map(num => {
-    return num * 1;
-  });
+  // const numArray = results.map(num => {
+  //   return num * 1;
+  // });
 
   return db("emails")
-    .whereIn("uid", numArray)
+    .whereIn("message_id", results)
     .andWhere("user_id", userId);
 }
 

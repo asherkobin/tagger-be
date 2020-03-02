@@ -60,7 +60,7 @@ router.post("/stream", auth, async (req, res) => {
 });
 
 // SEND STREAM TO DS
-router.post("/train", auth, async (req, res) => {
+router.post("/train", async (req, res) => {
   try {
     const { email } = req.body;
     let DsUser;
@@ -80,7 +80,7 @@ router.post("/train", auth, async (req, res) => {
     const streamData = await Messages.emails(DsUser);
     streamData.map(email => {
       const newStruc = {
-        uid: email.uid,
+        uid: email.message_id,
         from: email.from,
         msg: email.email_body_text,
         subject: email.subject,
@@ -105,7 +105,8 @@ router.post("/train", auth, async (req, res) => {
       const post = await axios({
         method: "POST",
         url:
-          "http://ec2-54-185-247-144.us-west-2.compute.amazonaws.com/train_model",
+        "http://ec2-3-19-30-227.us-east-2.compute.amazonaws.com/train_model",
+          // "http://ec2-54-185-247-144.us-west-2.compute.amazonaws.com/train_model",
         data: src
       });
       post
@@ -154,9 +155,12 @@ router.post("/predict", async (req, res) => {
       const post = await axios({
         method: "POST",
         url:
-          "http://ec2-54-185-247-144.us-west-2.compute.amazonaws.com/predict",
+          "http://ec2-3-19-30-227.us-east-2.compute.amazonaws.com/predict",
         data: src
-      });
+      }).catch(err => {
+        res.status(500).json({ message: "Server unable to connect to DS" })
+      })
+      console.log(post,"POST POST POSt")
       post
         ? Messages.getResults(DsUser, post.data.prediction)
             .then(results => {
@@ -201,7 +205,8 @@ router.post("/", auth, async (req, res) => {
     lastEmail ? (uid = lastEmail.uid) : null;
 
     // Get all the emails
-    const emails = await Mails.getMail(req.body, userId, uid);
+    const emails = await Mails.getMail(req.body, userId, uid).catch(err => console.log(err))
+    console.log(emails, "WHY IS THIS FAILING?")
     emails
       ? res
           .status(200)

@@ -91,6 +91,7 @@ function getMail(imap, userId, lastUid) {
                         console.log(err);
                       });
                   });
+                  resolve([d]);
                 })
                 .catch(err => {
                   console.log(err);

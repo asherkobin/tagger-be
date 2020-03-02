@@ -60,7 +60,7 @@ router.post("/stream", auth, async (req, res) => {
 });
 
 // SEND STREAM TO DS
-router.post("/train", async (req, res) => {
+router.post("/train", auth, async (req, res) => {
   try {
     const { email } = req.body;
     let DsUser;
@@ -121,7 +121,7 @@ router.post("/train", async (req, res) => {
 });
 
 // SMART SEARCH PREDICTION
-router.post("/predict", async (req, res) => {
+router.post("/predict", auth, async (req, res) => {
   try {
     const { email, uid, from, msg, subject } = req.body;
     let DsUser;

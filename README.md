@@ -85,7 +85,7 @@ To get the server running locally:
 |  POST  |  `/emails/train/`  | email(string) |                                                         |      send emails to DS for training      |
 |  POST  | `/emails/predict/` | email(string) | uid(string), from(string), msg(string), subject(string) | send search query to DS for smart search |
 
-#### Tech Stack
+## Tech Stack
 
 ![MIT](https://img.shields.io/packagist/l/doctrine/orm.svg)
 ![JavaScript](https://img.shields.io/badge/Language-JavaScript-blue)
@@ -94,7 +94,7 @@ To get the server running locally:
 ![Node.js](https://img.shields.io/badge/node.js-green)
 ![React.js](https://img.shields.io/badge/React-red)
 
-## Dependencies
+### Dependencies
 
 **axios,
 axios-rate-limit,

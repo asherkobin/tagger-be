@@ -96,6 +96,8 @@ To get the server running locally:
 
 ### Dependencies
 
+---
+
 **axios,
 axios-rate-limit,
 bluebird,

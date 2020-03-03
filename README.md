@@ -94,9 +94,7 @@ To get the server running locally:
 ![Node.js](https://img.shields.io/badge/node.js-green)
 ![React.js](https://img.shields.io/badge/React-red)
 
-### Dependencies
-
----
+## Dependencies
 
 **axios,
 axios-rate-limit,

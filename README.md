@@ -15,8 +15,6 @@ You can find the project at [Tagger](https://tagger-lab.netlify.com/).
 |                           [<img src="https://github.com/favicon.ico" width="15"> ](https://github.com/vladmog)                            |
 |          [<img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/vladmog/)          |
 
-</center>
-
 <br>
 <h2>Web Team</h2>
 

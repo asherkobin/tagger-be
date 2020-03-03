@@ -6,8 +6,9 @@ You can find the project at [Tagger](https://tagger-lab.netlify.com/).
 
 # Contributors
 
-<h2>Team Lead</h2>
 <center>
+
+<h2>Team Lead</h2>
 
 |                                              [Vlad Mogilevskiy](https://github.com/vladmog)                                               |
 | :---------------------------------------------------------------------------------------------------------------------------------------: |
@@ -34,6 +35,7 @@ You can find the project at [Tagger](https://tagger-lab.netlify.com/).
 |          [<img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/apathyhill/)           |          [<img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/jeanfraga/)          |
 
 </center>
+
 ## Project Overview
 
 Introducing, [Tagger](https://tagger-lab.netlify.com/)!

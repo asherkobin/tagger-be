@@ -65,12 +65,25 @@ To get the server running locally:
 
 ## Endpoints for Frontend
 
-#### Routes
+#### Private Routes
 
-| Method | Endpoint   | Access Control | Description            |
-| ------ | ---------- | -------------- | ---------------------- |
-| POST   | `/emails`  | Frontend Team  | receive all emails     |
-| POST   | `/compose` | Frontend Team  | create and send emails |
+**All routes require "id_token"**
+
+## Email Routes
+
+| Method |     Endpoint      |                                          Requirements                                           |                        Optional                        |      Description       |
+| :----: | :---------------: | :---------------------------------------------------------------------------------------------: | :----------------------------------------------------: | :--------------------: |
+|  POST  |    `/emails/`     |                           email(string), host(string), token(string)                            |                                                        |   receive all emails   |
+|  POST  | `/emails/boxes/`  |                           email(string), host(string), token(string)                            |                                                        |   receive all boxes    |
+|  POST  |    `/compose/`    | service(string), host(string), port(string), token(string), userEmail(string), receiver(string) | subject(string), body(string), cc(string), bcc(string) | create and send emails |
+|  POST  | `/emails/stream/` |                                          email(string)                                          |                                                        |     streams emails     |
+
+## DS Routes
+
+| Method |      Endpoint      | Requirements  |                        Optional                         |               Description                |
+| :----: | :----------------: | :-----------: | :-----------------------------------------------------: | :--------------------------------------: |
+|  POST  |  `/emails/train/`  | email(string) |                                                         |      send emails to DS for training      |
+|  POST  | `/emails/predict/` | email(string) | uid(string), from(string), msg(string), subject(string) | send search query to DS for smart search |
 
 # Data Model
 

@@ -13,7 +13,7 @@ server.use(cors({ credentials: true, origin: ["http://localhost:3000", "https://
 
 
 server.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  res.header("Access-Control-Allow-Origin", "https://tagger-lab.netlify.com");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Set-Cookie, Authorization");
   res.header('Access-Control-Allow-Credentials', true)
   next();

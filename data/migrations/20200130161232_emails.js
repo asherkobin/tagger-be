@@ -32,6 +32,12 @@ exports.up = function(knex) {
 
       tbl.integer("uid");
 
+      tbl.string("labels")
+
+      tbl.string("gMsgId")
+
+      tbl.string("gmThreadID")
+
       tbl
         .integer("user_id")
         .unsigned()

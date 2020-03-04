@@ -9,6 +9,8 @@ module.exports = {
   getTagsByMessageId
 };
 
+
+
 function addTag(tag) {
   return db("tags")
     .insert(tag, "id")
@@ -34,6 +36,7 @@ function getTagsByMessageId(messageId) {
     .select("tags.tag")
     .where("emails.message_id", messageId);
 }
+
 function updateTag(id, changes) {
   return db("tags")
     .where({ id })

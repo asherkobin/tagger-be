@@ -1,12 +1,12 @@
 const db = require("../../data/dbConfig.js");
 
 module.exports = {
-  getHeadersFromEmailById,
+  getResults,
   getLastEmailFromUser,
   getEmailIds,
-  getEmailsForDS,
   addEmail,
   deleteAllEmailsByUser,
+  updateEmail,
   deleteEmail,
   getTagsForMessage,
   getMessageTagsFromUser,
@@ -15,26 +15,33 @@ module.exports = {
   emails
 };
 
-function getEmailsForDS(userId) {
+function getResults(userId, results) {
+  // const numArray = results.map(num => {
+  //   return num * 1;
+  // });
+
   return db("emails")
-    .select("uid", "from", "email_body_text", "subject")
-    .where("user_id", userId);
+    .whereIn("message_id", results)
+    .andWhere("user_id", userId);
 }
 
 function emails(id) {
-  return db("emails").orderBy("date", "desc").where("user_id", id);
+  return db("emails")
+    .orderBy("date", "desc")
+    .where("user_id", id);
+}
+
+function updateEmail(userId, uid, changes) {
+  return db("emails")
+    .where("user_id", userId)
+    .andWhere("uid", uid)
+    .update(changes);
 }
 
 function deleteEmail(uid) {
   return db("emails")
     .where("uid", uid)
     .del();
-}
-
-function getHeadersFromEmailById(id) {
-  return db("emails")
-    .select("from", "name", "to", "subject", "uid")
-    .where("user_id", id);
 }
 
 function getLastEmailFromUser(userid) {
@@ -49,10 +56,8 @@ function findEmailbyId(id) {
     .where({ id })
     .first();
 }
-function addEmail(email) {
-  // const [id] = await db("emails").insert(email, "id");
 
-  // return findEmailbyId(id);
+function addEmail(email) {
   return db("emails")
     .insert(email, "id")
     .then(ids => {

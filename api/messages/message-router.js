@@ -1,273 +1,269 @@
-// ****** DEPENDENCIES *********
+// ********** DEPENDENCIES **********
 const router = require("express").Router();
 const axios = require("axios");
 const rateLimit = require("axios-rate-limit");
-const Imap = require("imap");
-const inspect = require("util").inspect;
-const simpleParser = require("mailparser").simpleParser;
 const fs = require("fs");
-const { parse, stringify } = require('flatted')
+const imaps = require("imap-simple");
 
+// ********** MODELS **********
 const Users = require("../users/user-model");
 const Messages = require("./message-model");
 const Tags = require("../tags/tag-model");
+const Mails = require("../imap/imap-model");
+const { auth } = require("../auth/auth-middleware");
+const { imapNestedFolders } = require("./message-middleware");
 
-// ******* GLOBAL VARIABLES **********
+// ********** GLOBAL VARIABLES **********
+
 const http = rateLimit(axios.create(), {
   maxRequests: 1,
   perMilliseconds: 1750
 });
 http.getMaxRPS();
 
-router.get("/", (req, res) => {
-  Messages.emails()
-    .then(emails => {
-      res.status(200).json(emails);
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500);
-    });
-});
-// ********* THE ROUTES WITH STREAMING ************
+// ********** THE ROUTES WITH STREAMING **********
 
 // CREATE STREAM FILE
-router.post("/stream", (req, res) => {
-  const { email } = req.body;
-  let userID;
-  Users.findUser(email)
-    .then(user => {
-      if (user) return (userID = user.id);
-    })
-    .then(() => {
-      const file = fs.createWriteStream(`./stream/allEmails${userID}.file`);
-      Messages.emails(userID)
-        .then(emails => {
-          const data = JSON.stringify(emails);
-          file.write(data);
-          file.end();
-        })
-        .then(() => {
-          const src = fs.createReadStream(`./stream/allEmails${userID}.file`);
-          console.log("STREAM STREAM");
+router.post("/stream", auth, async (req, res) => {
+  try {
+    const { email } = req.body;
+    let userId;
+
+    // Grabs User Id
+    const user = await Users.findUser(email);
+    if (user) {
+      userId = user.id;
+    }
+
+    // Creates file for streaming
+    const file = await fs.createWriteStream(`./stream/allEmails${userId}.file`);
+    const emails = await Messages.emails(userId);
+    const data = await JSON.stringify(emails);
+    if (data) {
+      file.write(data);
+      file.end(async () => {
+        // Creates Readable stream and pipes
+        const src = await fs.createReadStream(
+          `./stream/allEmails${userId}.file`
+        );
+        if (src) {
           src.pipe(res);
-        })
-        .catch(err => {
-          console.log(err);
-          res.status(500).json({ message: "Server was unable to stream emails" });
-        });
-    });
+        }
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res
+      .status(500)
+      .json({ message: "Server was unable to stream emails", err });
+  }
 });
 
 // SEND STREAM TO DS
+router.post("/train", auth, async (req, res) => {
+  try {
+    const { email } = req.body;
+    let DsUser;
+    let Input = {
+      address: email,
+      emails: []
+    };
+    let DsEmailStructure = [];
 
-router.post("/train", (req, res) => {
-  const { email } = req.body;
-  let DsUser;
-  let Input = {
-    emails: [],
-    address: email
-  }
-  let DsEmailStructure = []
-  Users.findUser(email)
-    .then(user => {
-      if (user) {
-        DsUser = user.id;
-        return DsUser;
-      }
-    })
-    .then(() => {
-      const file = fs.createWriteStream(
+    // Grabs User Id
+    const user = await Users.findUser(email);
+    if (user) {
+      DsUser = user.id;
+    }
+
+    // Grabs all emails from database
+    const streamData = await Messages.emails(DsUser);
+    streamData.map(email => {
+      const newStruc = {
+        uid: email.message_id,
+        from: email.from,
+        msg: email.email_body_text,
+        subject: email.subject,
+        content_type: " "
+      };
+      DsEmailStructure.push(newStruc);
+    });
+    Input.emails = DsEmailStructure;
+    const dsData = await JSON.stringify(Input);
+
+    // Creates file for streaming
+    const file = await fs.createWriteStream(
+      `./stream/allEmails${DsUser}Search.file`
+    );
+    file.write(dsData);
+    file.end(async () => {
+      // Creates readable file
+      const src = await fs.createReadStream(
         `./stream/allEmails${DsUser}Search.file`
       );
-      Messages.emails(DsUser)
-        .then(emailsDs => {
-          emailsDs.map(email => {
-            const newStruc = {
-              uid : email.uid,
-              from : email.from,
-              msg : email.email_body_text,
-              subject : email.subject,
-              content_type: "text"
-            }
-          DsEmailStructure.push(newStruc)
-          })
-          
-          Input.emails = DsEmailStructure
-          const dsData = JSON.stringify(Input);
-          file.write(dsData);
-          file.end();
-        })
-        .then(() => {
-          console.log("GETS TO AXIOS")
-          const src = fs.createReadStream(
-            `./stream/allEmails${DsUser}Search.file`
-          );
-          const {size} = fs.statSync(`./stream/allEmails${DsUser}Search.file`)
-          axios({
-            method: "POST",
-            // header: {
-            //   'Content-Type': 'text/markdown',
-            //   'Content-Length': size,
-            // },
-            url: 
-              "http://ec2-34-219-168-114.us-west-2.compute.amazonaws.com/train_model",
-            data: Input
-          })
-          .then(dsRes => {
-            res.status(200).json({message: dsRes.data})
-          })
-          .catch(err => {
-            console.log(err);
-          });
-        })
-        .catch(err => {
-          console.log(err);
-          res.status(500).json({ message: "Server was unable to stream to DS" });
-        });
-    })
-    .catch(err => {
-      res.status(500).json({ message: "Server was unable to stream to DS", err });
+      // Posts read stream to DS Api
+      const post = await axios({
+        method: "POST",
+        url:
+        "http://ec2-3-19-30-227.us-east-2.compute.amazonaws.com/train_model",
+          // "http://ec2-54-185-247-144.us-west-2.compute.amazonaws.com/train_model",
+        data: src
+      });
+      post
+        ? res.status(200).json({ message: `Trained a model for ${email}` })
+        : res
+            .status(500)
+            .json({ message: "Server was unable to connect to DS" });
     });
-});
-// ********* END THE ROUTES WITH STREAMING ************
-
-// ********* THE NEW ROUTE WITH IMAP FOR TAGGING************
-router.post("/", (req, res) => {
-  const { email, host, token } = req.body;
-  const allMessages = [];
-  let allFetched = false;
-
-  var imap = new Imap({
-    user: email,
-    password: "",
-    host: host,
-    port: 993,
-    tls: true,
-    xoauth2: token,
-    tlsOptions: { rejectUnauthorized: false },
-    debug: console.log
-  });
-  let userId;
-  let emailsUIDs = [];
-
-  Users.findUser(email).then(user => {
-    if (user) {
-      Messages.getEmailIds(user.id).then(uid => {
-        uid.map(id => {
-          emailsUIDs.push(id.uid * 1);
-        });
-
-        userId = user.id;
-        return emailsUIDs, userId;
-      });
-    } else {
-      const emailObj = {
-        email
-      };
-      Users.addUser(emailObj).then(user => {
-        return (userId = user.id);
-      });
-    }
-  });
-
-  function openInbox(cb) {
-    imap.openBox("INBOX", true, cb);
+  } catch {
+    res.status(500).json({ message: "Server was unable to send data to DS" });
   }
+});
 
-  imap.once("ready", function() {
-    openInbox(function(err, box) {
-      if (err) throw err;
-      imap.search(["ALL"], function(err, results) {
-        let difference = results.filter(x => !emailsUIDs.includes(x));
-        let deletion = emailsUIDs.filter(x => !results.includes(x));
-        if (err) throw err;
-        const emailsLeft = difference;
-
-        if (deletion.length > 0) {
-          for (let emailUid of deletion) {
-            Messages.deleteEmail(emailUid)
-              .then(del => {
-                console.log("delete email");
-              })
-              .catch(err => {
-                console.log(err, "delete loop");
-              });
-          }
+// SMART SEARCH PREDICTION
+router.post("/predict", auth, async (req, res) => {
+  try {
+    const { email, uid, from, msg, subject } = req.body;
+    let DsUser;
+    let Input = {
+      address: email,
+      emails: [
+        {
+          uid: uid || " ",
+          from: from || " ",
+          msg: msg || " ",
+          subject: subject || " ",
+          content_type: " "
         }
-        if (difference.length === 0) {
-          difference = [results[0]];
-          allFetched = true;
-        } else if (difference.length > 250) {
-          difference = difference.slice(-250);
-          allFetched = false;
-        }
-        for (let i = 0; i < difference.length; i++) {
-          var f = imap.fetch(difference[i], { bodies: "", attributes: "" });
-          f.on("message", function(msg, seqno) {
-            // console.log("Message #%d", seqno);
-            var prefix = "(#" + seqno + ") ";
-            msg.on("body", function(stream, info) {
-              simpleParser(stream, { bodies: "", attributes: "" }).then(
-                parsed => {
-                  let addEmailObj = {
-                    message_id: parsed.messageId,
-                    user_id: userId,
-                    from: parsed.from.value[0].address,
-                    name: parsed.headers.get("from").value[0].name,
-                    to: parsed.headers.get("to").text,
-                    subject: parsed.subject,
-                    email_body: parsed.html,
-                    email_body_text: parsed.text,
-                    date: parsed.date,
-                    uid: difference[i]
-                  };
-                  Messages.addEmail(addEmailObj)
-                    .then(message => {
-                      console.log("GOOD");
-                    })
-                    .catch(err => {
-                      console.log(err);
-                    });
+      ]
+    };
 
-                  allMessages.push(addEmailObj);
-                } //ends parsed
-              ); //ends .then on 111
-            });
-            msg.once("attributes", function(attrs) {});
-            msg.once("end", function() {
-              console.log(prefix + "Finished");
-              let newArray = [];
-            });
-          }); //ends f.on message
-        } //ends for loop
+    // Grabs User Id
+    const user = await Users.findUser(email);
+    if (user) {
+      DsUser = user.id;
+    }
 
-        f.once("error", function(err) {
-          console.log("Fetch error: " + err);
-        });
-        f.once("end", function() {
-          console.log("Done fetching all messages!");
-          res.status(200).json({
-            allEmailsFetched: {
-              fetched: allFetched,
-              date: Date.now()
-            }
-          });
-          imap.end();
-        });
-      });
+    // Creates file for streaming
+    const file = await fs.createWriteStream(`./stream/Predict.file`);
+    const dsData = JSON.stringify(Input);
+    file.write(dsData);
+    file.end(async () => {
+      // Creates read stream
+      const src = await fs.createReadStream(`./stream/Predict.file`);
+      // Posts search to DS
+      const post = await axios({
+        method: "POST",
+        url:
+          "http://ec2-3-19-30-227.us-east-2.compute.amazonaws.com/predict",
+        data: src
+      }).catch(err => {
+        res.status(500).json({ message: "Server unable to connect to DS" })
+      })
+      console.log(post,"POST POST POSt")
+      post
+        ? Messages.getResults(DsUser, post.data.prediction)
+            .then(results => {
+              res.status(200).json(results);
+            })
+            .catch(err => {
+              res.status(500).json({ message: "Unable to get results" });
+            })
+        : res.status(500).json({ message: "Unable to complete search" });
     });
-  });
-
-  imap.once("error", function(err) {
+  } catch (err) {
     console.log(err);
-  });
+    res
+      .status(500)
+      .json({ message: "Server was unable to submit search", err });
+  }
+});
+// ********* END THE ROUTES WITH STREAMING *********
 
-  imap.once("end", function() {
-    console.log("Connection ended");
-  });
+// ********* IMAP ROUTES ********
 
-  imap.connect();
+router.post("/", auth, async (req, res) => {
+  try {
+    const { email, host, token } = req.body;
+    let userId;
+    let uid = 1;
+    let newUserEmail;
+
+    req.setTimeout(600000*6);
+    // Find the user in the database, grab the id
+    const user = await Users.findUser(email);
+    if (user) {
+      userId = user.id;
+    } else {
+      newUserEmail = { email };
+      const newUser = await Users.addUser(newUserEmail);
+      newUser ? (userId = newUser.id) : null;
+    }
+
+    // Check for the last email from the user, grab the uid
+    const lastEmail = await Messages.getLastEmailFromUser(userId);
+    lastEmail ? (uid = lastEmail.uid) : null;
+
+    // Get all the emails
+    const emails = await Mails.getMail(req.body, userId, uid).catch(err => console.log(err))
+    console.log(emails, "WHY IS THIS FAILING?")
+    emails
+      ? res
+          .status(200)
+          .json({ allEmailsFetched: { fetched: true, date: Date.now() } })
+      : res
+          .status(400)
+          .json({ fetched: false, msg: "Emails failed to fetch." });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ fetched: false, err, msg: "The entire request failed." });
+  }
+});
+
+// GETS ALL BOXES
+router.post("/boxes", auth, async (req, res) => {
+  try {
+    const { email, host, token } = req.body;
+    let folders = [];
+    var config = {
+      imap: {
+        user: email,
+        password: "",
+        host: host,
+        port: 993,
+        tls: true,
+        xoauth2: token,
+        tlsOptions: { rejectUnauthorized: false },
+        debug: console.log
+      }
+    };
+    // Connects to IMAP and gets boxes
+    imaps.connect(config).then(function(connection) {
+      connection.getBoxes(function(err, boxes) {
+        try {
+          folders.push(imapNestedFolders(boxes));
+          return folders;
+        } catch (err) {
+          throw err;
+        }
+      });
+      connection.end();
+    });
+    // Returns Boxes
+    setTimeout(() => {
+      folders
+        ? res.status(200).json(folders[0])
+        : res.status(400).json({
+            fetched: false,
+            msg: "Emails failed to fetch."
+          });
+    }, 3000);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ fetched: false, err, msg: "The entire request failed." });
+  }
 });
 
 module.exports = router;

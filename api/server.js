@@ -8,7 +8,9 @@ const composeRouter = require("./Sender/compose-router")
 
 const server = express();
 
-server.use(cors())
+// server.use(cors())
+server.use(cors({ credentials: true, origin: ["http://localhost:3000", "https://tagger-lab.netlify.com"] }));
+
 
 server.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", req.headers.origin);

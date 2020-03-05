@@ -47,6 +47,7 @@ router.post("/stream", auth, async (req, res) => {
           `./stream/allEmails${userId}.file`
         );
         if (src) {
+          console.log("FIRING?");
           src.pipe(res);
         }
       });
@@ -105,8 +106,8 @@ router.post("/train", auth, async (req, res) => {
       const post = await axios({
         method: "POST",
         url:
-        "http://ec2-3-19-30-227.us-east-2.compute.amazonaws.com/train_model",
-          // "http://ec2-54-185-247-144.us-west-2.compute.amazonaws.com/train_model",
+          "http://ec2-3-19-30-227.us-east-2.compute.amazonaws.com/train_model",
+        // "http://ec2-54-185-247-144.us-west-2.compute.amazonaws.com/train_model",
         data: src
       });
       post
@@ -154,13 +155,12 @@ router.post("/predict", auth, async (req, res) => {
       // Posts search to DS
       const post = await axios({
         method: "POST",
-        url:
-          "http://ec2-3-19-30-227.us-east-2.compute.amazonaws.com/predict",
+        url: "http://ec2-3-19-30-227.us-east-2.compute.amazonaws.com/predict",
         data: src
       }).catch(err => {
-        res.status(500).json({ message: "Server unable to connect to DS" })
-      })
-      console.log(post,"POST POST POSt")
+        res.status(500).json({ message: "Server unable to connect to DS" });
+      });
+
       post
         ? Messages.getResults(DsUser, post.data.prediction)
             .then(results => {
@@ -189,7 +189,7 @@ router.post("/", auth, async (req, res) => {
     let uid = 1;
     let newUserEmail;
 
-    req.setTimeout(600000*6);
+    req.setTimeout(600000 * 6);
     // Find the user in the database, grab the id
     const user = await Users.findUser(email);
     if (user) {
@@ -202,18 +202,24 @@ router.post("/", auth, async (req, res) => {
 
     // Check for the last email from the user, grab the uid
     const lastEmail = await Messages.getLastEmailFromUser(userId);
-    lastEmail ? (uid = lastEmail.uid) : null;
+    lastEmail ? (uid = lastEmail.uid + 1) : null;
 
     // Get all the emails
-    const emails = await Mails.getMail(req.body, userId, uid).catch(err => console.log(err))
-    console.log(emails, "WHY IS THIS FAILING?")
-    emails
-      ? res
-          .status(200)
-          .json({ allEmailsFetched: { fetched: true, date: Date.now() } })
-      : res
-          .status(400)
-          .json({ fetched: false, msg: "Emails failed to fetch." });
+
+    // TESTING NEW CODE TO PULL ALL EMAILS HERE
+
+    const emails = await Mails.getMail(req.body, userId, uid);
+    if (emails) {
+      Messages.addEmail(emails)
+        .then(() =>
+          res
+            .status(200)
+            .json({ allEmailsFetched: { fetched: true, date: Date.now() } })
+        )
+        .catch(err => console.log(err));
+    } else {
+      res.status(400).json({ fetched: false, msg: "Emails failed to fetch." });
+    }
   } catch (err) {
     res
       .status(500)
@@ -222,7 +228,7 @@ router.post("/", auth, async (req, res) => {
 });
 
 // GETS ALL BOXES
-router.post("/boxes", auth, async (req, res) => {
+router.post("/boxes", async (req, res) => {
   try {
     const { email, host, token } = req.body;
     let folders = [];

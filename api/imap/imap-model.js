@@ -1,17 +1,11 @@
 const imaps = require("imap-simple");
-const Imap = require("imap")
 const _ = require("underscore");
 const simpleParser = require("mailparser").simpleParser;
-const Messages = require("../messages/message-model");
 const Promise = require('bluebird')
 
 module.exports = {
   getMail
 };
-
-function getUIDs(imap) {
-  
-}
 
 function getMail(imap, userId, lastUid) {
   return new Promise((resolve, reject) => {
@@ -31,7 +25,7 @@ function getMail(imap, userId, lastUid) {
       .connect(config)
       .then(function(connection) {
         return connection.openBox("[Gmail]/All Mail").then(function() {
-          var searchCriteria = ["ALL", ["UID", lastUid + ":*"]];
+          var searchCriteria = ["ALL", ["UID", lastUid + ":39000"]];
           var fetchOptions = {
             bodies: "",
             attributes: ""
@@ -46,7 +40,6 @@ function getMail(imap, userId, lastUid) {
                   var idHeader = "uid: " + id + "\r\n";
                   var attributes = email.attributes;
                   simpleParser(idHeader + all.body, (err, mail) => {
-                    console.log("SIMPLER PARSER IS HERE");
                     const fullEmail = {
                       ...mail,
                       attributes
@@ -58,15 +51,14 @@ function getMail(imap, userId, lastUid) {
               Promise.all(emails)
                 .then(data => {
                   connection.end();
-                  let d = data.forEach(obj => {
-                    console.log(obj.to, "THIS IS THE BUNK");
+                  let d = data.map(obj => {
                     let emailTo;
                     if (!obj.to) {
                       emailTo = null
                     } else {
                       emailTo = obj.to.value.map(obj => obj.address).join(",");
                     }
-                    const oneMail = {
+                    return {
                       uid: obj.attributes.uid,
                       from: obj.from.value.map(obj => obj.address).join(","),
                       name: obj.from.value.map(obj => obj.name).join(","),
@@ -83,19 +75,9 @@ function getMail(imap, userId, lastUid) {
                       gmThreadID: obj.attributes["x-gm-thrid"],
                       user_id: userId
                     };
-                    Messages.addEmail(oneMail)
-                      .then(res => {
-                        console.log(`${obj.attributes.uid} was added`);
-                      })
-                      .catch(err => {
-                        console.log(err);
-                      });
                   });
-                  resolve([d]);
+                  resolve(d);
                 })
-                .catch(err => {
-                  console.log(err);
-                });
             });
         });
       })

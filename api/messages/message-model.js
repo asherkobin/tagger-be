@@ -16,14 +16,14 @@ module.exports = {
 };
 
 function getResults(userId, results) {
-  // const numArray = results.map(num => {
-  //   return num * 1;
-  // });
-
   return db("emails")
     .whereIn("message_id", results)
     .andWhere("user_id", userId);
 }
+
+//! OUTSTANDING ISSUE
+//! POSSIBLLY NEED TO MAKE FETCHING EMAILS INTO A TRANSACTION
+//! EMAILS ARE NOT BEING FETCHED WHEN THERE ARE OVER ~22k EMAILS
 
 function emails(id) {
   return db("emails")
@@ -57,14 +57,27 @@ function findEmailbyId(id) {
     .first();
 }
 
-function addEmail(email) {
-  return db("emails")
-    .insert(email, "id")
-    .then(ids => {
-      const [id] = ids;
+// function addEmail(email) {
+//   return db("emails").insert(email, "id");
+// }
 
-      return findEmailbyId(id);
+// CHANGED addEmail() TO BE A TRANSACTION
+// CURRENT ISSUE IS THAT NODE RESETS WHEN TRYING TO ADD 10k EMAILS TO DB
+
+function addEmail(emails) {
+  return db.transaction(trx => {
+    const newEmails = [];
+    emails.forEach(email => {
+      const newEmail = db("emails")
+        .transacting(trx)
+        .insert(email, "id");
+
+      newEmails.push(newEmail);
     });
+    return Promise.all(newEmails)
+      .then(trx.commit)
+      .catch(trx.rollback);
+  });
 }
 
 function getEmailIds(userId) {

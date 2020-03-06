@@ -41,7 +41,6 @@ function getMail(imap, userId, lastUid) {
                   var idHeader = "uid: " + id + "\r\n";
                   var attributes = email.attributes;
                   simpleParser(idHeader + all.body, (err, mail) => {
-                    console.log("SIMPLER PARSER IS HERE");
                     const fullEmail = {
                       ...mail,
                       attributes
@@ -54,7 +53,6 @@ function getMail(imap, userId, lastUid) {
                 .then(data => {
                   connection.end();
                   let d = data.forEach(obj => {
-                    console.log(obj.to, "THIS IS THE BUNK");
                     let emailTo;
                     if (!obj.to) {
                       emailTo = null

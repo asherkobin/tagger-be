@@ -160,7 +160,6 @@ router.post("/predict", auth, async (req, res) => {
       }).catch(err => {
         res.status(500).json({ message: "Server unable to connect to DS" })
       })
-      console.log(post,"POST POST POSt")
       post
         ? Messages.getResults(DsUser, post.data.prediction)
             .then(results => {
@@ -206,7 +205,6 @@ router.post("/", auth, async (req, res) => {
 
     // Get all the emails
     const emails = await Mails.getMail(req.body, userId, uid).catch(err => console.log(err))
-    console.log(emails, "WHY IS THIS FAILING?")
     emails
       ? res
           .status(200)

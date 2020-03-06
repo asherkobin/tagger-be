@@ -6,7 +6,7 @@ module.exports = {
   getEmailIds,
   addEmail,
   deleteAllEmailsByUser,
-  updateEmail,
+  // updateEmail,
   deleteEmail,
   getTagsForMessage,
   getMessageTagsFromUser,
@@ -16,10 +16,6 @@ module.exports = {
 };
 
 function getResults(userId, results) {
-  // const numArray = results.map(num => {
-  //   return num * 1;
-  // });
-
   return db("emails")
     .whereIn("message_id", results)
     .andWhere("user_id", userId);
@@ -31,16 +27,17 @@ function emails(id) {
     .where("user_id", id);
 }
 
-function updateEmail(userId, uid, changes) {
-  return db("emails")
-    .where("user_id", userId)
-    .andWhere("uid", uid)
-    .update(changes);
-}
+// function updateEmail(userId, uid, changes) {
+//   return db("emails")
+//     .where("user_id", userId)
+//     .andWhere("uid", uid)
+//     .update(changes);
+// }
 
-function deleteEmail(uid) {
+function deleteEmail(userId, messageId) {
   return db("emails")
-    .where("uid", uid)
+    .where("message_id", messageId)
+    .andWhere("user_id", userId)
     .del();
 }
 

@@ -3,9 +3,9 @@ const db = require("../../data/dbConfig.js");
 module.exports = {
   addUser,
   findUser,
-  findUserById,
-  updateUser,
-  deleteUser
+  // findUserById,
+  // updateUser,
+  // deleteUser
 };
 
 function addUser(user) {
@@ -24,24 +24,24 @@ function findUser(user) {
     .first();
 }
 
-function findUserById(id) {
-  return db("users")
-    .select("*")
-    .where({ id })
-    .first();
-}
+// function findUserById(id) {
+//   return db("users")
+//     .select("*")
+//     .where({ id })
+//     .first();
+// }
 
-function updateUser(id, changes) {
-  return db("users")
-    .where({ id })
-    .update(changes, "*")
-    .then(() => {
-      return findUserById(id);
-    });
-}
+// function updateUser(id, changes) {
+//   return db("users")
+//     .where({ id })
+//     .update(changes, "*")
+//     .then(() => {
+//       return findUserById(id);
+//     });
+// }
 
-function deleteUser(id) {
-  return db("users")
-    .where({ id })
-    .del();
-}
+// function deleteUser(id) {
+//   return db("users")
+//     .where({ id })
+//     .del();
+// }

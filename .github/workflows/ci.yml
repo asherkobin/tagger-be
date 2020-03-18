@@ -25,6 +25,8 @@ jobs:
 
 			# Run the NPM install command before proceeding
       - run: npm install
+        	
+      - uses: paambaati/codeclimate-action@v2.5.5
 
 			# A GitHub action for running tests and publishing coverage
       - uses: paambaati/codeclimate-action@v2.4.0

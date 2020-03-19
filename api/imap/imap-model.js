@@ -13,15 +13,8 @@ function getUIDs(imap) {
   
 }
 
-function d(data, userId) {
-  return data.forEach(obj => {
-  let emailTo;
-  if (!obj.to) {
-    emailTo = null
-  } else {
-    emailTo = obj.to.value.map(obj => obj.address).join(",");
-  }
-  const oneMail = {
+function oneMail(obj, userId) {
+  return {
     uid: obj.attributes.uid,
     from: obj.from.value.map(obj => obj.address).join(","),
     name: obj.from.value.map(obj => obj.name).join(","),
@@ -38,6 +31,17 @@ function d(data, userId) {
     gmThreadID: obj.attributes["x-gm-thrid"],
     user_id: userId
   };
+}
+
+function d(data, userId) {
+  return data.forEach(obj => {
+  let emailTo;
+  if (!obj.to) {
+    emailTo = null
+  } else {
+    emailTo = obj.to.value.map(obj => obj.address).join(",");
+  }
+  let oneMail = oneMail(obj, userId);
   Messages.addEmail(oneMail)
       .then(res => {
         console.log(`${obj.attributes.uid} was added`);
@@ -47,58 +51,70 @@ function d(data, userId) {
       });
 })}
 
+function config(imap) {
+  return {
+    imap: {
+      user: imap.email,
+      password: "",
+      host: imap.host,
+      port: 993,
+      tls: true,
+      xoauth2: imap.token,
+      tlsOptions: { rejectUnauthorized: false },
+      debug: console.log
+    }
+  };
+}
+
+function emails(results) {
+  return results.map(email => {
+    return new Promise((resolve, reject) => {
+      var all = _.find(email.parts, { which: "" });
+      var id = email.attributes.uid;
+      var idHeader = "uid: " + id + "\r\n";
+      var attributes = email.attributes;
+      simpleParser(idHeader + all.body, (err, mail) => {
+        const fullEmail = {
+          ...mail,
+          attributes
+        };
+        resolve(fullEmail);
+      });
+    });
+  });
+}
+
+function connect(connection, lastUid) {
+  connection.openBox("[Gmail]/All Mail").then(function () {
+    var searchCriteria = ["ALL", ["UID", lastUid + ":*"]];
+    var fetchOptions = {
+      bodies: "",
+      attributes: ""
+    };
+    return connection
+        .search(searchCriteria, fetchOptions)
+        .then(async function (results) {
+          let emails = emails(results);
+          Promise.all(emails)
+              .then(data => {
+                connection.end();
+                let d = d(data, userId);
+                resolve([d]);
+              })
+              .catch(err => {
+                console.log(err);
+              });
+        });
+  });
+}
+
 function getMail(imap, userId, lastUid) {
   return new Promise((resolve, reject) => {
-    var config = {
-      imap: {
-        user: imap.email,
-        password: "",
-        host: imap.host,
-        port: 993,
-        tls: true,
-        xoauth2: imap.token,
-        tlsOptions: { rejectUnauthorized: false },
-        debug: console.log
-      }
-    };
+    let config = config(imap);
     imaps
       .connect(config)
       .then(function(connection) {
-        return connection.openBox("[Gmail]/All Mail").then(function() {
-          var searchCriteria = ["ALL", ["UID", lastUid + ":*"]];
-          var fetchOptions = {
-            bodies: "",
-            attributes: ""
-          };
-          return connection
-            .search(searchCriteria, fetchOptions)
-            .then(async function(results) {
-              var emails = results.map(email => {
-                return new Promise((resolve, reject) => {
-                  var all = _.find(email.parts, { which: "" });
-                  var id = email.attributes.uid;
-                  var idHeader = "uid: " + id + "\r\n";
-                  var attributes = email.attributes;
-                  simpleParser(idHeader + all.body, (err, mail) => {
-                    const fullEmail = {
-                      ...mail,
-                      attributes
-                    };
-                    resolve(fullEmail);
-                  });
-                });
-              });
-              Promise.all(emails)
-                .then(data => {
-                  connection.end();
-                  d(data, userId);
-                  resolve([d]);
-                })
-                .catch(err => {
-                  console.log(err);
-                });
-            });
-        });
+        return connect(connection, lastUid)
       })
       .catch(err => {
         reject(err);

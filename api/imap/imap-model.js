@@ -13,6 +13,40 @@ function getUIDs(imap) {
   
 }
 
+function d(data, userId) {
+  return data.forEach(obj => {
+  let emailTo;
+  if (!obj.to) {
+    emailTo = null
+  } else {
+    emailTo = obj.to.value.map(obj => obj.address).join(",");
+  }
+  const oneMail = {
+    uid: obj.attributes.uid,
+    from: obj.from.value.map(obj => obj.address).join(","),
+    name: obj.from.value.map(obj => obj.name).join(","),
+    to: emailTo,
+    subject: obj.subject,
+    email_body: obj.html,
+    email_body_text: obj.text,
+    // attachments: obj.attachments,
+    message_id: obj.messageId,
+    // in_reply_to: obj.inReplyTo,
+    date: obj.date,
+    labels: obj.attributes["x-gm-labels"].toString(),
+    gMsgId: obj.attributes["x-gm-msgid"],
+    gmThreadID: obj.attributes["x-gm-thrid"],
+    user_id: userId
+  };
+  Messages.addEmail(oneMail)
+      .then(res => {
+        console.log(`${obj.attributes.uid} was added`);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+})}
+
 function getMail(imap, userId, lastUid) {
   return new Promise((resolve, reject) => {
     var config = {
@@ -46,7 +80,6 @@ function getMail(imap, userId, lastUid) {
                   var idHeader = "uid: " + id + "\r\n";
                   var attributes = email.attributes;
                   simpleParser(idHeader + all.body, (err, mail) => {
-                    console.log("SIMPLER PARSER IS HERE");
                     const fullEmail = {
                       ...mail,
                       attributes
@@ -58,39 +91,7 @@ function getMail(imap, userId, lastUid) {
               Promise.all(emails)
                 .then(data => {
                   connection.end();
-                  let d = data.forEach(obj => {
-                    console.log(obj.to, "THIS IS THE BUNK");
-                    let emailTo;
-                    if (!obj.to) {
-                      emailTo = null
-                    } else {
-                      emailTo = obj.to.value.map(obj => obj.address).join(",");
-                    }
-                    const oneMail = {
-                      uid: obj.attributes.uid,
-                      from: obj.from.value.map(obj => obj.address).join(","),
-                      name: obj.from.value.map(obj => obj.name).join(","),
-                      to: emailTo,
-                      subject: obj.subject,
-                      email_body: obj.html,
-                      email_body_text: obj.text,
-                      // attachments: obj.attachments,
-                      message_id: obj.messageId,
-                      // in_reply_to: obj.inReplyTo,
-                      date: obj.date,
-                      labels: obj.attributes["x-gm-labels"].toString(),
-                      gMsgId: obj.attributes["x-gm-msgid"],
-                      gmThreadID: obj.attributes["x-gm-thrid"],
-                      user_id: userId
-                    };
-                    Messages.addEmail(oneMail)
-                      .then(res => {
-                        console.log(`${obj.attributes.uid} was added`);
-                      })
-                      .catch(err => {
-                        console.log(err);
-                      });
-                  });
+                  d(data, userId);
                   resolve([d]);
                 })
                 .catch(err => {

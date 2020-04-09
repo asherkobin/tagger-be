@@ -21,6 +21,44 @@ const http = rateLimit(axios.create(), {
 });
 http.getMaxRPS();
 
+// ********** NEW FRONT END ENDPOINTS **********
+
+router.get('/email/:id', auth, (req,res) => {
+  const id = req.params.id;
+  Messages.getEmail(id)
+      .then(emails => {
+        res.json(emails)
+      })
+      .catch(error => res.send(error))
+})
+
+router.get('/email/thread/:id', auth, (req,res) => {
+  const id = req.params.id;
+  Messages.getThreadList(id)
+      .then(emails => {
+        res.json(emails)
+      })
+      .catch(error => res.send(error))
+} )
+
+router.get('/email-list/:page', auth, (req,res) => {
+  const page = req.params.page;
+  let query = {}
+  if (page < 0 || page === 0) {
+    response = { "error": true, "message": "invalid page number, should start with 1" };
+    return res.json(response)
+  }
+
+  query.skip = 25 * (page - 1)
+  query.limit = 25
+
+  Messages.getEmailList(query)
+      .then(emails => {
+        res.json(emails)
+      })
+      .catch(error => res.send(error))
+
+} )
 // ********** THE ROUTES WITH STREAMING **********
 
 // CREATE STREAM FILE

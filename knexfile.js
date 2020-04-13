@@ -40,7 +40,7 @@ module.exports = {
 
   testing: {
     client: "sqlite3",
-    connection: { filename: "./data/testemails.db3" },
+    connection: { filename: "postgresql://localhost" },
     useNullAsDefault: true,
     migrations: {
       directory: "./data/migrations"

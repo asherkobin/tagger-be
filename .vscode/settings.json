@@ -2,5 +2,14 @@
     "cSpell.ignoreWords": [
         "accesstoken",
         "newrefreshtoken"
+    ],
+    "sqltools.connections": [
+        {
+            "connectString": "postgres://kyiffmsgxqswmm:9115d7987657db53526f396f5a95872ad6b1ad5a894422dbd68a01ecd94a8b30@ec2-34-206-252-187.compute-1.amazonaws.com:5432/dae90ccg4l3pkt?ssl=true",
+            "dialect": "PostgreSQL",
+            "isActive": false,
+            "isConnected": false,
+            "name": "Tagger"
+        }
     ]
 }

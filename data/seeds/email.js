@@ -11,7 +11,7 @@ exports.seed = function(knex) {
             email_body_text: '"WE\'RE GOIGN TO JAM, YOUR MAILBOX FULL OF SPAM!\n' +
                 '"',
             date: '1580157214000.0', uid: '3', labels: 'sent', gMsgId: '1656914933919808974',
-            gmThreadID: '1656914933919808974'},
+            gmThreadID: '1656914933919808974', user_id: 1},
       ]);
     });
 };

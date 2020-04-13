@@ -3,7 +3,7 @@ const Imap = require("imap")
 const _ = require("underscore");
 const simpleParser = require("mailparser").simpleParser;
 const Messages = require("../messages/message-model");
-const Promise = require('bluebird')
+const Promise = require('bluebird');
 
 module.exports = {
   getMail

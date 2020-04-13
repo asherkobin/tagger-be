@@ -1,6 +1,8 @@
 const db = require("../../data/dbConfig.js");
-
 module.exports = {
+  getEmailList,
+  getEmail,
+  getThreadList,
   getResults,
   getLastEmailFromUser,
   getEmailIds,
@@ -14,6 +16,28 @@ module.exports = {
   findEmailbyId,
   emails
 };
+
+function getEmailList(query) {
+  return db("emails")
+      .limit(query.limit)
+      .offset(query.skip)
+      .orderBy('date')
+      .select('message_id', 'from',
+          'subject', 'date', 'email_body_text')
+
+}
+
+function getEmail(id) {
+  return db('emails')
+      .orderBy('date')
+      .where('message_id', id)
+}
+
+function getThreadList(threadID) {
+  return db('emails')
+      .orderBy('date')
+      .where('gmThreadID', threadID)
+}
 
 function getResults(userId, results) {
   // const numArray = results.map(num => {

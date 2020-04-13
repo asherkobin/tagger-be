@@ -23,7 +23,7 @@ http.getMaxRPS();
 
 // ********** NEW FRONT END ENDPOINTS **********
 
-router.get('/email/:id', auth, (req,res) => {
+router.get('/email/:id', (req,res) => {
   const id = req.params.id;
   Messages.getEmail(id)
       .then(emails => {
@@ -32,7 +32,7 @@ router.get('/email/:id', auth, (req,res) => {
       .catch(error => res.send(error))
 })
 
-router.get('/email/thread/:id', auth, (req,res) => {
+router.get('/email/thread/:id', (req,res) => {
   const id = req.params.id;
   Messages.getThreadList(id)
       .then(emails => {
@@ -41,7 +41,7 @@ router.get('/email/thread/:id', auth, (req,res) => {
       .catch(error => res.send(error))
 } )
 
-router.get('/email-list/:page', auth, (req,res) => {
+router.get('/email-list/:page', (req,res) => {
   const page = req.params.page;
   let query = {}
   if (page < 0 || page === 0) {

@@ -19,9 +19,10 @@ async function getMail({ imapUser, imapPassword, imapServer }) {
 
   await imapConnection.openBox("INBOX");
 
-  const lastUid = 180; // TODO: Get value from DB: Messages.getLastEmailFromUser
+  //const lastUid = 180; // TODO: Get value from DB: Messages.getLastEmailFromUser
   //const searchCriteria = ["ALL", ["UID", lastUid + ":*"]];
-  const searchCriteria = ["ALL", ["UID", "186:*"]];
+  //const searchCriteria = ["ALL", ["UID", "186:*"]];
+  const searchCriteria = ["ALL"];
   const fetchOptions = { bodies: "", attributes: "" };
 
   const searchResults = await imapConnection.search(

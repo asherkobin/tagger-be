@@ -43,7 +43,7 @@ router.get('/email/thread/:id', (req,res) => {
 
 router.get('/:label/:page', (req,res) => {
   const page = req.params.page;
-  let label = '%' + req.params.label + '%';
+  let label = req.params.label;
   let query = {}
   if (page < 0 || page === 0) {
     response = { "error": true, "message": "invalid page number, should start with 1" };

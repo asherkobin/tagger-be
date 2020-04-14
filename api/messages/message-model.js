@@ -23,7 +23,7 @@ function getEmailList(query, label) {
       .offset(query.skip)
       .orderBy('date', "desc")
       .where('labels', 'ilike', `%${label}%`)
-      .select('message_id', 'from',
+      .select('message_id', 'name',
           'subject', 'date', 'email_body_text')
 
 }

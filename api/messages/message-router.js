@@ -41,7 +41,7 @@ router.get('/email/thread/:id', (req,res) => {
       .catch(error => res.send(error))
 } )
 
-router.get('/:label/:page', (req,res) => {
+router.get('/label/:label/:page', (req,res) => {
   const page = req.params.page;
   let label = req.params.label;
   let query = {}

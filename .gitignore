@@ -89,3 +89,4 @@ stream/
 # Just in case?
 node_modules
 data/emails.db3
+.DS_Store

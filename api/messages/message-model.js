@@ -17,11 +17,12 @@ module.exports = {
   emails
 };
 
-function getEmailList(query) {
+function getEmailList(query, label) {
   return db("emails")
       .limit(query.limit)
       .offset(query.skip)
       .orderBy('date')
+      .where('labels', label)
       .select('message_id', 'from',
           'subject', 'date', 'email_body_text')
 
@@ -30,7 +31,7 @@ function getEmailList(query) {
 function getEmail(id) {
   return db('emails')
       .orderBy('date')
-      .where('message_id', id)
+      .where('id', id)
 }
 
 function getThreadList(threadID) {

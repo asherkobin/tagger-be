@@ -4,12 +4,20 @@
         "newrefreshtoken"
     ],
     "sqltools.connections": [
-        {
-            "connectString": "postgres://kyiffmsgxqswmm:9115d7987657db53526f396f5a95872ad6b1ad5a894422dbd68a01ecd94a8b30@ec2-34-206-252-187.compute-1.amazonaws.com:5432/dae90ccg4l3pkt?ssl=true",
-            "dialect": "PostgreSQL",
-            "isActive": false,
-            "isConnected": false,
-            "name": "Tagger"
-        }
+      {
+        "connectString": "postgres://kyiffmsgxqswmm:9115d7987657db53526f396f5a95872ad6b1ad5a894422dbd68a01ecd94a8b30@ec2-34-206-252-187.compute-1.amazonaws.com:5432/dae90ccg4l3pkt?ssl=true",
+        "dialect": "PostgreSQL",
+        "isActive": false,
+        "isConnected": false,
+        "name": "Tagger"
+      },
+      {
+        "askForPassword": true,
+        "connectString": "postgres://yewkmrlcugtskf:788351a0c8a36211698a792ed83a301ecddcf047a159cc1eea39443b1b3aff05@ec2-34-193-232-231.compute-1.amazonaws.com:5432/d37nt9q98bpd4c?ssl=true",
+        "dialect": "PostgreSQL",
+        "name": "DEV",
+        "port": 5432,
+        "server": "localhost"
+      }
     ]
 }

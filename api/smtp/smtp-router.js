@@ -11,7 +11,7 @@ smtpRouter.post("/send", (req, res) => {
     port: 465,
     auth: {
       user: "taggerlabs20@gmail.com",
-      pass: "xLambdalabs20!"
+      pass: "Lambdalabs20!"
     }
   });
 

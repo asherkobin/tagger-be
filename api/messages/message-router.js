@@ -60,6 +60,19 @@ router.get('/label/:label/:page', (req,res) => {
       .catch(error => res.send(error))
 
 } )
+
+// ********** New Search Routes **********
+
+router.post('/search/:topic', (req,res) => {
+  const topic = req.params.topic;
+  const search = req.header.search;
+  Messages.searchByAny(topic, search)
+      .then(result => {
+        res.json(result)
+      })
+      .catch(err => {res.send(err)})
+})
+
 // ********** THE ROUTES WITH STREAMING **********
 
 // CREATE STREAM FILE

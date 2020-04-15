@@ -15,8 +15,13 @@ module.exports = {
   getMessageTagsFromUser,
   get,
   findEmailbyId,
-  emails
+  emails,
+  getLastMessageIdByUserId
 };
+
+function getLastMessageIdByUserId(userId) {
+  return db("emails").max("uid").limit(10000);
+}
 
 function getEmailList(query, label) {
   return db("emails")
@@ -24,7 +29,7 @@ function getEmailList(query, label) {
       .offset(query.skip)
       .orderBy('date', "desc")
       .where('labels', 'ilike', `%${label}%`)
-      .select('message_id', 'name',
+      .select('id', 'name',
           'subject', 'date', 'email_body_text')
 
 }

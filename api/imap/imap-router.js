@@ -5,7 +5,10 @@ const imapModel = require("./imap-model");
 // Lambdalabs20!
 // imap.gmail.com
 
-imapRouter.get("/mail", async (req, res) => {
+imapRouter.get("/get-latest", async (req, res) => {
+  res.status(500).json("NOT IMPLEMENTED");
+
+  /*
   const imapUser = req.headers["temp-imap-user"];
   const imapPassword = req.headers["temp-imap-password"];
   const imapServer = req.headers["temp-imap-server"];
@@ -16,18 +19,18 @@ imapRouter.get("/mail", async (req, res) => {
   else
   {
     try {
-      const allEmails = await imapModel.getMail({
+      const allEmails = await imapModel.getLatestMail({
         imapUser,
         imapPassword,
         imapServer
       });
       
-      res.status(200).json(allEmails);
+      res.status(200).json(allEmails); // TODO: Change to # of emails returned
     }
     catch (e) {
       res.status(500).json(e.toString());
     }
-  }
+  }*/
 });
 
 

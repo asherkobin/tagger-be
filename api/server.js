@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const messageRouter = require("./messages/message-router");
-const composeRouter = require("./Sender/compose-router");
+const smtpRouter = require("./smtp/smtp-router");
 const imapRouter = require("./imap/imap-router");
 
 
@@ -35,7 +35,7 @@ server.use(express.json());
 
 //ROUTERS
 server.use("/emails", messageRouter);
-server.use("/compose", composeRouter)
+server.use("/smtp", smtpRouter)
 server.use("/imap", imapRouter);
 
 //test default api

@@ -28,7 +28,7 @@ function getEmailList(query, label) {
       .limit(query.limit)
       .offset(query.skip)
       .orderBy('date', "desc")
-      .where('labels', 'ilike', `%${label}%`)
+      .where('labels', 'like', `%${label}%`)
       .select('id', 'name',
           'subject', 'date', 'email_body_text')
 
@@ -48,10 +48,10 @@ function getThreadList(threadID) {
 
 function searchByAny(keyword) {
   return db('emails')
-      .orderBy('date', "desc")
-      .where('*', 'ilike', `%${keyword}%`)
+      .where( 'fulltext', 'like', `%${keyword}%`)
       .select('id', 'name',
           'subject', 'date', 'email_body_text')
+      .orderBy('date', "desc")
 }
 function getResults(userId, results) {
   // const numArray = results.map(num => {

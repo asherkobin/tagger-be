@@ -14,8 +14,13 @@ module.exports = {
   getMessageTagsFromUser,
   get,
   findEmailbyId,
-  emails
+  emails,
+  getLastMessageIdByUserId
 };
+
+function getLastMessageIdByUserId(userId) {
+  return db("emails").max("uid").limit(10000);
+}
 
 function getEmailList(query, label) {
   return db("emails")

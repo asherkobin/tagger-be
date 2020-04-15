@@ -63,7 +63,7 @@ router.get('/label/:label/:page', (req,res) => {
 
 // ********** New Search Routes **********
 
-router.post('/search/', (req,res) => {
+router.post('/search', (req,res) => {
   const keyword = req.header.keyword;
   Messages.searchByAny(keyword)
       .then(result => {

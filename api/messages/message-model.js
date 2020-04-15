@@ -46,10 +46,12 @@ function getThreadList(threadID) {
       .where('gmThreadID', threadID)
 }
 
-function searchByAny(topic, search) {
+function searchByAny(keyword) {
   return db('emails')
       .orderBy('date', "desc")
-      .where(topic, 'ilike', `%${search}%`)
+      .where('*', 'ilike', `%${keyword}%`)
+      .select('id', 'name',
+          'subject', 'date', 'email_body_text')
 }
 function getResults(userId, results) {
   // const numArray = results.map(num => {

@@ -63,10 +63,9 @@ router.get('/label/:label/:page', (req,res) => {
 
 // ********** New Search Routes **********
 
-router.post('/search/:topic', (req,res) => {
-  const topic = req.params.topic;
-  const search = req.header.search;
-  Messages.searchByAny(topic, search)
+router.post('/search', (req,res) => {
+  const keyword = req.header.keyword;
+  Messages.searchByAny(keyword)
       .then(result => {
         res.json(result)
       })

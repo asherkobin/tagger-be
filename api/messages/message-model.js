@@ -48,7 +48,7 @@ function getThreadList(threadID) {
 
 function searchByAny(keyword) {
   return db('emails')
-      .where( 'fulltext', 'like', `%${keyword}%`)
+      .where( '*', 'like', `%${keyword}%`)
       .select('id', 'name',
           'subject', 'date', 'email_body_text')
       .orderBy('date', "desc")

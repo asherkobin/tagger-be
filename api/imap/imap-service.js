@@ -28,12 +28,13 @@ async function getLatestMail(imapUser, imapPassword, imapServer) {
       tlsOptions: { rejectUnauthorized: false },
       debug: console.log
     }
+    // onmail: handleOnMail => THE FUTURE
   });
 
   await imapConnection.openBox("[Gmail]/All Mail");
 
   const searchCriteria = ["ALL", ["UID", lastMessageId + ":*"]];
-  const fetchOptions = { }; // see https://github.com/mscdex/node-imap
+  const fetchOptions = { bodies: "" }; // see https://github.com/mscdex/node-imap
 
   const searchResults = await imapConnection.search(
     searchCriteria,
@@ -103,6 +104,12 @@ function addMessagesToDb(dboMessages) {
   });
 }
 
+function checkForNewMail() {
+  console.log("Checking for new messages...");
+  getLatestMail("taggerlabs20@gmail.com", "Lambdalabs20!", "imap.gmail.com"); // TEMP TEMP TEMP
+}
+
 module.exports = {
-  getLatestMail
+  getLatestMail,
+  checkForNewMail
 };

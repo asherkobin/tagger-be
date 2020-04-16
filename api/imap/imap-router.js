@@ -22,7 +22,7 @@ imapRouter.get("/get-latest", async (req, res) => {
         imapServer
       );
       
-      res.status(200).json(allEmails); // TODO: Change to # of emails returned
+      res.status(200).json(allEmails.length + " new messages arrived");
     }
     catch (e) {
       res.status(500).json(e.toString());

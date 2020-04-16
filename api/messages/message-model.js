@@ -7,6 +7,7 @@ module.exports = {
   getLastEmailFromUser,
   getEmailIds,
   searchByAny,
+  getAnalytics,
   addEmail,
   deleteAllEmailsByUser,
   updateEmail,
@@ -59,7 +60,29 @@ function searchByAny(column, keyword) {
       .select('id', 'name',
           'subject', 'date', 'email_body_text')
       .orderBy('date', "desc")
+      .limit(25)
 }
+function getReceived(address) {
+  return db('emails')
+      .where('from', address)
+      .count('id')
+}
+
+function getSent(address) {
+  return db('emails')
+      .where('to', address)
+      .count('id')
+}
+
+function getAnalytics(address) {
+  const received = getReceived(address)
+  const sent = getSent(address)
+  return {'received:': received , 'sent:': sent}
+
+}
+
+
+/////// Old Endpoints ////////
 function getResults(userId, results) {
   // const numArray = results.map(num => {
   //   return num * 1;

@@ -18,8 +18,7 @@ exports.up = function(knex) {
       tbl.string("gMsgId");
       tbl.string("gmThreadID");
       tbl.integer("user_id").unsigned().notNullable().references("id").inTable("users").onDelete("RESTRICT").onUpdate("CASCADE");
-        tbl.specificType('fulltext', 'tsvector');
-        tbl.index('fulltext', null, 'gin')
+        tbl.specificType('fulltext', 'tsvector').index(null, 'gin')
     })
     .createTable("tags", tbl => {
       tbl.increments();

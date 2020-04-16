@@ -11,7 +11,7 @@ server.listen(port, () => {
 });
 
 function setupBackgroundTimers() {
-  const numMinutes = 1;
+  const numMinutes = 10;
 
   console.log(`Started imapService.checkForNewMail every ${numMinutes} minutes`);
   setInterval(imapService.checkForNewMail, 1000 * 60 * numMinutes);

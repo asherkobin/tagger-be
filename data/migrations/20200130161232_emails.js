@@ -17,11 +17,15 @@ exports.up = function(knex) {
       tbl.string("labels");
       tbl.string("gMsgId");
       tbl.string("gmThreadID");
-      tbl.integer("user_id").unsigned().notNullable().references("id").inTable("users").onDelete("RESTRICT").onUpdate("CASCADE");})
+      tbl.integer("user_id").unsigned().notNullable().references("id").inTable("users").onDelete("RESTRICT").onUpdate("CASCADE");
+        tbl.specificType('fulltext', 'tsvector');
+        tbl.index('fulltext', null, 'gin')
+    })
     .createTable("tags", tbl => {
       tbl.increments();
       tbl.string("tag");
-      tbl.integer("email_id").unsigned().notNullable().references("id").inTable("emails").onDelete("RESTRICT").onUpdate("CASCADE");});
+      tbl.integer("email_id").unsigned().notNullable().references("id").inTable("emails").onDelete("RESTRICT").onUpdate("CASCADE");
+    });
 };
 exports.down = function(knex) {
   return knex.schema

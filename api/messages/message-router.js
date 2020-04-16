@@ -58,7 +58,7 @@ router.get('/label/:label/:page', (req,res) => {
           Messages.getEmailCountForUser(1) // temp user_id = 1
             .then(count => {
                 res.json({
-                  totalCount: count["count(`id`)"],
+                  totalCount: count,
                   messages: emails
                 });
           })

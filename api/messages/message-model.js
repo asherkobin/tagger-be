@@ -6,6 +6,7 @@ module.exports = {
   getResults,
   getLastEmailFromUser,
   getEmailIds,
+  searchByAny,
   addEmail,
   deleteAllEmailsByUser,
   updateEmail,
@@ -35,16 +36,23 @@ function getEmailList(query, label) {
 
 function getEmail(id) {
   return db('emails')
-      .orderBy('date')
+      .orderBy('date', "desc")
       .where('id', id)
 }
 
 function getThreadList(threadID) {
   return db('emails')
-      .orderBy('date')
+      .orderBy('date', "desc")
       .where('gmThreadID', threadID)
 }
 
+function searchByAny(keyword) {
+  return db('emails')
+      .where( 'fulltext', 'ilike', `%${keyword}%`)
+      .select('id', 'name',
+          'subject', 'date', 'email_body_text')
+      .orderBy('date', "desc")
+}
 function getResults(userId, results) {
   // const numArray = results.map(num => {
   //   return num * 1;

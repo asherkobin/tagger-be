@@ -55,11 +55,16 @@ router.get('/label/:label/:page', (req,res) => {
 
   Messages.getEmailList(query, label)
       .then(emails => {
-        res.json(emails)
+          Messages.getEmailCountForUser(1) // temp user_id = 1
+            .then(count => {
+                res.json({
+                  totalCount: count["count(`id`)"],
+                  messages: emails
+                });
+          })
       })
       .catch(error => res.send(error))
-
-} )
+});
 
 // ********** New Search Routes **********
 

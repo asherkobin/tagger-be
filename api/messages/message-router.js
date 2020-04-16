@@ -63,9 +63,10 @@ router.get('/label/:label/:page', (req,res) => {
 
 // ********** New Search Routes **********
 
-router.post('/search', (req,res) => {
+router.post('/search/:column', (req,res) => {
+  const column = req.params.column;
   const keyword = req.body.keyword;
-  Messages.searchByAny(keyword)
+  Messages.searchByAny(column, keyword)
       .then(result => {
         res.json(result)
       })

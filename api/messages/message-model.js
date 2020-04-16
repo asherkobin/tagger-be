@@ -15,11 +15,11 @@ module.exports = {
   get,
   findEmailbyId,
   emails,
-  getLastMessageIdByUserId
+  getLastMessageByUserId
 };
 
-function getLastMessageIdByUserId(userId) {
-  return db("emails").max("uid").limit(10000);
+function getLastMessageByUserId(userId) {
+  return db("emails").orderBy("uid", "desc").first();
 }
 
 function getEmailList(query, label) {

@@ -66,6 +66,18 @@ router.get('/label/:label/:page', (req,res) => {
       .catch(error => res.send(error))
 });
 
+// ********** Analytics **********
+
+router.post('/analytics', (req,res) => {
+  const address = req.body.address
+  Messages.getAnalytics(address)
+      .then(resp => {
+        res.json(resp)
+      })
+      .catch(err => res.send(err))
+
+})
+
 // ********** New Search Routes **********
 
 router.post('/search/:column', (req,res) => {

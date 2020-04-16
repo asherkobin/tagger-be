@@ -2,15 +2,21 @@ const imapSimple = require("imap-simple");
 const simpleParser = require("mailparser").simpleParser;
 const messagesModel = require("../messages/message-model");
 
-async function getLastMessageId() {
-  const taggerUserId = 1;
-  const lastMessageId = messagesModel.getLastMessageIdByUserId(taggerUserId);
+async function getLastMessageByUserId(taggerUserId) {
+  try {
+    const lastMessageId = messagesModel.getLastMessageByUserId(taggerUserId);
 
-  return lastMessageId;
+    return lastMessageId;
+  }
+  catch (e) {
+    return 0; // empty email account
+  }
 }
 
-async function getLatestMail({ imapUser, imapPassword, imapServer }) {
-  const lastMessageId = await getLastMessageId();
+async function getLatestMail(imapUser, imapPassword, imapServer) {
+  const taggerUserId = 1; // TEMP SINGLE USER
+  const lastMessage = await getLastMessageByUserId(taggerUserId);
+  const lastMessageId = lastMessage.uid;
   
   const imapConnection = await imapSimple.connect({
     imap: {
@@ -22,12 +28,13 @@ async function getLatestMail({ imapUser, imapPassword, imapServer }) {
       tlsOptions: { rejectUnauthorized: false },
       debug: console.log
     }
+    // onmail: handleOnMail => THE FUTURE
   });
 
   await imapConnection.openBox("[Gmail]/All Mail");
 
   const searchCriteria = ["ALL", ["UID", lastMessageId + ":*"]];
-  const fetchOptions = { bodies: "", attributes: "" };
+  const fetchOptions = { bodies: "" }; // see https://github.com/mscdex/node-imap
 
   const searchResults = await imapConnection.search(
     searchCriteria,
@@ -36,6 +43,12 @@ async function getLatestMail({ imapUser, imapPassword, imapServer }) {
 
   imapConnection.end();
 
+  if (lastMessageId != 0) { // the searchResults will always contain the last email, so we remove it
+    searchResults.shift();
+  }
+
+  console.log(`IMAP returned ${searchResults.length} new messages`);
+  
   const parsedMessages = await parseImapSearchResults(searchResults);
   const dboMessages = parsedMessagesToDBO(parsedMessages);
 
@@ -91,6 +104,12 @@ function addMessagesToDb(dboMessages) {
   });
 }
 
+function checkForNewMail() {
+  console.log("Checking for new messages...");
+  getLatestMail("taggerlabs20@gmail.com", "Lambdalabs20!", "imap.gmail.com"); // TEMP TEMP TEMP
+}
+
 module.exports = {
-  getLatestMail
+  getLatestMail,
+  checkForNewMail
 };

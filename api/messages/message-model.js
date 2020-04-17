@@ -9,7 +9,7 @@ module.exports = {
   searchByAny,
   getSent,
   getReceived,
-  getAnalytics,
+  getNameFromAddress,
   addEmail,
   deleteAllEmailsByUser,
   updateEmail,
@@ -77,8 +77,10 @@ function getSent(address) {
       .count('id')
 }
 
-function getAnalytics(address) {
-  return {'received:': getReceived(address) , 'sent:': getSent(address)}
+function getNameFromAddress(address) {
+  return db('emails')
+      .where('from', address)
+      .select('name')
 }
 
 

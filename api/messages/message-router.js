@@ -55,7 +55,7 @@ router.get('/label/:label/:page', (req,res) => {
 
   Messages.getEmailList(query, label)
       .then(emails => {
-          Messages.getEmailCountForUser(1) // temp user_id = 1
+          Messages.getEmailCountByLabelForUser(label, 1) // temp user_id = 1
             .then(count => {
                 res.json({
                   totalCount: count,

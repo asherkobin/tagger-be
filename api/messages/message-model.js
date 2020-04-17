@@ -75,10 +75,7 @@ function getSent(address) {
 }
 
 function getAnalytics(address) {
-  const received = getReceived(address)
-  const sent = getSent(address)
-  return {'received:': received , 'sent:': sent}
-
+  return {'received:': getReceived(address) , 'sent:': getSent(address)}
 }
 
 

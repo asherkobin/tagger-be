@@ -70,11 +70,16 @@ router.get('/label/:label/:page', (req,res) => {
 
 router.post('/analytics', (req,res) => {
   const address = req.body.address
-  Messages.getAnalytics(address)
-      .then(resp => {
-        res.send(resp)
+  Messages.getReceived(address)
+      .then(received => {
+          Messages.getSent(address)
+              .then(sent => {
+                res.json({
+                  received: received,
+                  sent: sent
+                });
+              })
       })
-      .catch(err => res.send(err))
 
 })
 

@@ -72,7 +72,7 @@ router.post('/analytics', (req,res) => {
   const address = req.body.address
   Messages.getAnalytics(address)
       .then(resp => {
-        res.json(resp)
+        res.send(resp)
       })
       .catch(err => res.send(err))
 

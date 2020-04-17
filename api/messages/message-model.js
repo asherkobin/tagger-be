@@ -7,6 +7,8 @@ module.exports = {
   getLastEmailFromUser,
   getEmailIds,
   searchByAny,
+  getSent,
+  getReceived,
   getAnalytics,
   addEmail,
   deleteAllEmailsByUser,

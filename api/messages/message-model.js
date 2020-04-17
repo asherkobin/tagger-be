@@ -18,7 +18,7 @@ module.exports = {
   findEmailbyId,
   emails,
   getLastMessageByUserId,
-  getEmailCountForUser
+  getEmailCountByLabelForUser
 };
 
 function getLastMessageByUserId(userId) {
@@ -36,9 +36,10 @@ function getEmailList(query, label) {
 
 }
 
-function getEmailCountForUser(userId) {
+function getEmailCountByLabelForUser(label, userId) {
   return db("emails")
     .where("user_id", userId)
+    .where('labels', 'ilike', `%${label}%`)
     .count("id").first();
 }
 

@@ -75,8 +75,8 @@ router.post('/analytics', (req,res) => {
           Messages.getSent(address)
               .then(sent => {
                 res.json({
-                  received: received.count,
-                  sent: sent.count
+                  received: received[0].count,
+                  sent: sent[0].count
                 });
               })
       })

@@ -41,6 +41,18 @@ router.get('/email/thread/:id', (req,res) => {
       .catch(error => res.send(error))
 } )
 
+router.get('/email/thread-message/:id', (req,res) => {
+  const id = req.params.id;
+  Messages.getThreadID(id)
+      .then(email => {
+        Messages.getThreadList(email[0].gmThreadID)
+            .then(response => {
+              res.json(response)
+            })
+      })
+      .catch(error => res.send(error))
+})
+
 router.get('/label/:label/:page', (req,res) => {
   const page = req.params.page;
   let label = req.params.label;

@@ -3,6 +3,7 @@ module.exports = {
   getEmailList,
   getEmail,
   getThreadList,
+  getThreadID,
   getResults,
   getLastEmailFromUser,
   getEmailIds,
@@ -55,6 +56,17 @@ function getThreadList(threadID) {
   return db('emails')
       .orderBy('date', "desc")
       .where('gmThreadID', threadID)
+}
+
+function getThreadID(id) {
+  return db('emails')
+      .where('message_id', id)
+      .select('gmThreadID')
+}
+
+function getThreadByMessage(message_id) {
+  return db('emails')
+      .where
 }
 
 function searchByAny(column, keyword) {

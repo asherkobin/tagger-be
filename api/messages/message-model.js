@@ -8,6 +8,7 @@ module.exports = {
   getLastEmailFromUser,
   getEmailIds,
   searchByAny,
+  searchByCount,
   getSent,
   getReceived,
   getNameFromAddress,
@@ -78,6 +79,14 @@ function searchByAny(query, column, keyword) {
           'subject', 'date', 'email_body_text')
       .orderBy('date', "desc")
 }
+
+function searchByCount(column, keyword) {
+  return db("emails")
+    .where(column, "ilike", `%${keyword}%`)
+    .count("id")
+    .first();
+}
+
 function getReceived(address) {
   return db('emails')
       .where('from', address)

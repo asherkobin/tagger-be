@@ -20,7 +20,7 @@ server.use(cors({
   credentials: true, 
   origin: whitelist, 
   allowedHeaders: ["Origin, X-Requested-With, Content-Type, Accept, Set-Cookie, Authorization"],
-  methods: ["POST"]
+  methods: ["POST", "GET"]
 }));
 
 

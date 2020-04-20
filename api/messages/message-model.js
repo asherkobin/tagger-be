@@ -9,6 +9,7 @@ module.exports = {
   getEmailIds,
   searchByAny,
   searchByCount,
+  searchAll,
   getSent,
   getReceived,
   getNameFromAddress,
@@ -80,9 +81,18 @@ function searchByAny(query, column, keyword) {
       .orderBy('date', "desc")
 }
 
-function searchAll(query) {
+function searchAll(query, keyword) {
   return db('emails')
-      .where( 'message_id' || 'from' || 'name' || 'to' || 'subject' , 'ilike', `%${query}%`)
+      .limit(query.limit)
+      .offset(query.skip)
+      .where( 'from' , 'ilike', `%${keyword}%`)
+      .orWhere('name','ilike', `%${keyword}%` )
+      .orWhere('to','ilike', `%${keyword}%` )
+      .orWhere('subject','ilike', `%${keyword}%` )
+      .orWhere('email_body_text','ilike', `%${keyword}%` )
+      .select('id', 'name',
+          'subject', 'date', 'email_body_text')
+      .orderBy('date', "desc")
 }
 
 function searchByCount(column, keyword) {

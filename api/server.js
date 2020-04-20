@@ -9,19 +9,19 @@ const imapRouter = require("./imap/imap-router");
 
 const server = express();
 
-let whitelist = [
-  "http://localhost:3000", 
-  "https://tagger-lab.netlify.com", 
-  "http://ec2-3-19-30-227.us-east-2.compute.amazonaws.com/",
-  "https://tagger-fe.herokuapp.com/"
-]
-// server.use(cors())
-server.use(cors({ 
-  credentials: true, 
-  origin: whitelist, 
-  allowedHeaders: ["Origin, X-Requested-With, Content-Type, Accept, Set-Cookie, Authorization"],
-  methods: ["POST", "GET"]
-}));
+// let whitelist = [
+//   "http://localhost:3000",
+//   "https://tagger-lab.netlify.com",
+//   "http://ec2-3-19-30-227.us-east-2.compute.amazonaws.com/",
+//   "https://tagger-fe.herokuapp.com/"
+// ]
+server.use(cors())
+// server.use(cors({
+//   credentials: true,
+//   // origin: whitelist,
+//   allowedHeaders: ["Origin, X-Requested-With, Content-Type, Accept, Set-Cookie, Authorization"],
+//   methods: ["POST", "GET"]
+// }));
 
 
 // server.use(function(req, res, next) {

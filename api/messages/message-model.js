@@ -82,6 +82,7 @@ function searchByAny(query, column, keyword) {
 
 function searchAll(query) {
   return db('emails')
+      .where( 'message_id' || 'from' || 'name' || 'to' || 'subject' , 'ilike', `%${query}%`)
 }
 
 function searchByCount(column, keyword) {

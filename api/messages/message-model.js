@@ -80,6 +80,10 @@ function searchByAny(query, column, keyword) {
       .orderBy('date', "desc")
 }
 
+function searchAll(query) {
+  return db('emails')
+}
+
 function searchByCount(column, keyword) {
   return db("emails")
     .where(column, "ilike", `%${keyword}%`)

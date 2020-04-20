@@ -55,8 +55,9 @@ router.get('/email/thread-message/:id', (req,res) => {
 
 router.get('/label/:label/:page', (req,res) => {
   const page = req.params.page;
-  let label = req.params.label;
   let query = {}
+  let label = req.params.label;
+
   if (page < 0 || page === 0) {
     response = { "error": true, "message": "invalid page number, should start with 1" };
     return res.json(response)
@@ -101,10 +102,21 @@ router.post('/analytics', (req,res) => {
 
 // ********** New Search Routes **********
 
-router.post('/search/:column', (req,res) => {
+router.post('/search/:column/:page', (req,res) => {
   const column = req.params.column;
+  const page = req.params.page;
   const keyword = req.body.keyword;
-  Messages.searchByAny(column, keyword)
+  let query = {};
+
+  if (page < 0 || page === 0) {
+    response = { "error": true, "message": "invalid page number, should start with 1" };
+    return res.json(response)
+  }
+
+  query.skip = 25 * (page - 1)
+  query.limit = 25
+
+  Messages.searchByAny(query, column, keyword)
       .then(result => {
         res.json(result)
       })

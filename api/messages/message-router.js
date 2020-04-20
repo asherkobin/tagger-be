@@ -102,26 +102,37 @@ router.post('/analytics', (req,res) => {
 
 // ********** New Search Routes **********
 
-router.post('/search/:column/:page', (req,res) => {
+router.post("/search/:column/:page", (req, res) => {
   const column = req.params.column;
   const page = req.params.page;
   const keyword = req.body.keyword;
   let query = {};
 
   if (page < 0 || page === 0) {
-    response = { "error": true, "message": "invalid page number, should start with 1" };
-    return res.json(response)
+    response = {
+      error: true,
+      message: "invalid page number, should start with 1",
+    };
+    return res.json(response);
   }
 
-  query.skip = 25 * (page - 1)
-  query.limit = 25
+  query.skip = 25 * (page - 1);
+  query.limit = 25;
 
   Messages.searchByAny(query, column, keyword)
-      .then(result => {
-        res.json(result)
-      })
-      .catch(err => {res.send(err)})
-})
+    .then((result) => {
+      Messages.searchByCount(column, keyword)
+        .then((count) => {
+          res.json({
+            totalCount: count,
+            messages: result,
+          });
+        });
+    })
+    .catch((err) => {
+      res.send(err);
+    });
+});
 
 // ********** THE ROUTES WITH STREAMING **********
 

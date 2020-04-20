@@ -12,7 +12,8 @@ const server = express();
 let whitelist = [
   "http://localhost:3000", 
   "https://tagger-lab.netlify.com", 
-  "http://ec2-3-19-30-227.us-east-2.compute.amazonaws.com/"
+  "http://ec2-3-19-30-227.us-east-2.compute.amazonaws.com/",
+  "https://tagger-fe.herokuapp.com/"
 ]
 // server.use(cors())
 server.use(cors({ 

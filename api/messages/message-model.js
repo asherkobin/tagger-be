@@ -69,13 +69,14 @@ function getThreadByMessage(message_id) {
       .where
 }
 
-function searchByAny(column, keyword) {
+function searchByAny(query, column, keyword) {
   return db('emails')
+      .limit(query.limit)
+      .offset(query.skip)
       .where( column, 'ilike', `%${keyword}%`)
       .select('id', 'name',
           'subject', 'date', 'email_body_text')
       .orderBy('date', "desc")
-      .limit(25)
 }
 function getReceived(address) {
   return db('emails')

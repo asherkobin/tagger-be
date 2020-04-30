@@ -12,7 +12,8 @@ The back-end is deployed on at [Heroku](https://tagger-be-dev.herokuapp.com/).
   * Retreive all the data for a specific message (meta-data + body)
   * Search for specific fields (from, to, etc) in messages and return those messages that match
   * Send a message via SMTP
-* **NOTE** All DS functionality has been disabled/commented-out since we had no DS contributors
+  
+NOTE: All DS functionality has been disabled/commented-out since we had no DS contributors
 
 #### Backend delpoyed at [Heroku](https://taggerhq.herokuapp.com/)
 
@@ -20,8 +21,8 @@ The back-end is deployed on at [Heroku](https://tagger-be-dev.herokuapp.com/).
 
 To get the server running locally:
 
-* **npm install** to install all required dependencies
-* **npm run server** to start the local server on port 8000
+* ```npm install``` to install all required dependencies
+* ```npm run server``` to start the local server on port 8000
 
 ## Tech Stack
 
@@ -37,5 +38,5 @@ To get the server running locally:
 
 ## Endpoints for Front-End Consumption
 
-**ALL ROUTES ARE PRIVATE**
+Note: ALL ROUTES ARE PRIVATE (for the use of the front-end only)
 

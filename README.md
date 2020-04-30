@@ -42,7 +42,7 @@ Note: ALL ROUTES ARE PRIVATE (for the use of the front-end only)
 
 #### Table of Contents  
 - [Get Message List](#get-message-list)
-
+- [Get Message](#get-message)
 
 ## Get Message List
 
@@ -93,4 +93,54 @@ Given a label (typically "inbox"), a list of messages will be returned along wit
   },
   "messages": []
 }
+```
+
+## Get Message
+
+Retrieves all the information for a specific message
+
+**URL** : `/emails/email/:id`
+
+**Method** : `GET`
+
+### Success Response
+
+**Condition** : If message exists.
+
+**Code** : `200 OK`
+
+**Content example**
+
+```json
+[
+  {
+    "id": 1,
+    "message_id": "<98f29004-6c77-308b-0201-36cec79677fc@gmail.com>",
+    "from": "taggerlabs20@gmail.com",
+    "name": "",
+    "to": "receiver_email@service.com",
+    "subject": "HERE COMES THE SPAM",
+    "email_body": "0",
+    "email_body_text": "WE'RE GOIGN TO JAM, YOUR MAILBOX FULL OF SPAM!\n",
+    "read": 0,
+    "date": "1580157214000.0",
+    "uid": 3,
+    "labels": "\\Inbox",
+    "gMsgId": "1656914933919808974",
+    "gmThreadID": "1656914933919808974",
+    "user_id": 1
+  }
+]
+```
+
+### Error Responses
+
+**Condition** : If message is not found.
+
+**Code** : `200 OK`
+
+**Content example**
+
+```json
+[]
 ```

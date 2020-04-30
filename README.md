@@ -40,3 +40,57 @@ To get the server running locally:
 
 Note: ALL ROUTES ARE PRIVATE (for the use of the front-end only)
 
+#### Table of Contents  
+- [Get Message List](#get-message-list)
+
+
+## Get Message List
+
+Given a label (typically "inbox"), a list of messages will be returned along with the total count
+
+**URL** : `/emails/label/:label/:page`
+
+**Method** : `GET`
+
+### Success Response
+
+**Condition** : If everything is OK.
+
+**Code** : `200 OK`
+
+**Content example**
+
+```json
+{
+  "totalCount": {
+    "count": 204
+  },
+  "messages": [
+    {
+      "id": 317,
+      "name": "Wish",
+      "subject": "Buy Pillows",
+      "date": "1588260629000.0",
+      "email_body_text": "Hello world..."
+    },
+    { ... }
+   ]
+ }
+```
+
+### Error Responses
+
+**Condition** : If no messages are found.
+
+**Code** : `200 OK`
+
+**Content example**
+
+```json
+{
+  "totalCount": {
+     "count": 0
+  },
+  "messages": []
+}
+```

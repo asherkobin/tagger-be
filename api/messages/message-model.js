@@ -1,9 +1,18 @@
 const db = require("../../data/dbConfig.js");
-
 module.exports = {
+  getEmailList,
+  getEmail,
+  getThreadList,
+  getThreadID,
   getResults,
   getLastEmailFromUser,
   getEmailIds,
+  searchByAny,
+  searchByCount,
+  searchAll,
+  getSent,
+  getReceived,
+  getNameFromAddress,
   addEmail,
   deleteAllEmailsByUser,
   updateEmail,
@@ -12,9 +21,107 @@ module.exports = {
   getMessageTagsFromUser,
   get,
   findEmailbyId,
-  emails
+  emails,
+  getLastMessageByUserId,
+  getEmailCountByLabelForUser
 };
 
+function getLastMessageByUserId(userId) {
+  return db("emails").orderBy("uid", "desc").first();
+}
+
+function getEmailList(query, label) {
+  return db("emails")
+      .limit(query.limit)
+      .offset(query.skip)
+      .orderBy('date', "desc")
+      .where('labels', 'ilike', `%${label}%`)
+      .select('id', 'name',
+          'subject', 'date', 'email_body_text')
+
+}
+
+function getEmailCountByLabelForUser(label, userId) {
+  return db("emails")
+    .where("user_id", userId)
+    .where('labels', 'ilike', `%${label}%`)
+    .count("id").first();
+}
+
+function getEmail(id) {
+  return db('emails')
+      .orderBy('date', "desc")
+      .where('id', id)
+}
+
+function getThreadList(threadID) {
+  return db('emails')
+      .orderBy('date', "desc")
+      .where('gmThreadID', threadID)
+}
+
+function getThreadID(id) {
+  return db('emails')
+      .where('message_id', id)
+      .select('gmThreadID')
+}
+
+function getThreadByMessage(message_id) {
+  return db('emails')
+      .where
+}
+
+function searchByAny(query, column, keyword) {
+  return db('emails')
+      .limit(query.limit)
+      .offset(query.skip)
+      .where( column, 'ilike', `%${keyword}%`)
+      .select('id', 'name',
+          'subject', 'date', 'email_body_text')
+      .orderBy('date', "desc")
+}
+
+function searchAll(query, keyword) {
+  return db('emails')
+      .limit(query.limit)
+      .offset(query.skip)
+      .where( 'from' , 'ilike', `%${keyword}%`)
+      .orWhere('name','ilike', `%${keyword}%` )
+      .orWhere('to','ilike', `%${keyword}%` )
+      .orWhere('subject','ilike', `%${keyword}%` )
+      .orWhere('email_body_text','ilike', `%${keyword}%` )
+      .select('id', 'name',
+          'subject', 'date', 'email_body_text')
+      .orderBy('date', "desc")
+}
+
+function searchByCount(column, keyword) {
+  return db("emails")
+    .where(column, "ilike", `%${keyword}%`)
+    .count("id")
+    .first();
+}
+
+function getReceived(address) {
+  return db('emails')
+      .where('from', address)
+      .count('id')
+}
+
+function getSent(address) {
+  return db('emails')
+      .where('to', address)
+      .count('id')
+}
+
+function getNameFromAddress(address) {
+  return db('emails')
+      .where('from', address)
+      .select('name')
+}
+
+
+/////// Old Endpoints ////////
 function getResults(userId, results) {
   // const numArray = results.map(num => {
   //   return num * 1;

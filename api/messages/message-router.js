@@ -21,6 +21,144 @@ const http = rateLimit(axios.create(), {
 });
 http.getMaxRPS();
 
+// ********** NEW FRONT END ENDPOINTS **********
+
+router.get('/email/:id', (req,res) => {
+  const id = req.params.id;
+  Messages.getEmail(id)
+      .then(emails => {
+        res.json(emails)
+      })
+      .catch(error => res.send(error))
+})
+
+router.get('/email/thread/:id', (req,res) => {
+  const id = req.params.id;
+  Messages.getThreadList(id)
+      .then(emails => {
+        res.json(emails)
+      })
+      .catch(error => res.send(error))
+} )
+
+router.get('/email/thread-message/:id', (req,res) => {
+  const id = req.params.id;
+  Messages.getThreadID(id)
+      .then(email => {
+        Messages.getThreadList(email[0].gmThreadID)
+            .then(response => {
+              res.json(response)
+            })
+      })
+      .catch(error => res.send(error))
+})
+
+router.get('/label/:label/:page', (req,res) => {
+  const page = req.params.page;
+  let query = {}
+  let label = req.params.label;
+
+  if (page < 0 || page === 0) {
+    response = { "error": true, "message": "invalid page number, should start with 1" };
+    return res.json(response)
+  }
+
+  query.skip = 25 * (page - 1)
+  query.limit = 25
+
+  Messages.getEmailList(query, label)
+      .then(emails => {
+          Messages.getEmailCountByLabelForUser(label, 1) // temp user_id = 1
+            .then(count => {
+                res.json({
+                  totalCount: count,
+                  messages: emails
+                });
+          })
+      })
+      .catch(error => res.send(error))
+});
+
+// ********** Analytics **********
+
+router.post('/analytics', (req,res) => {
+  const address = req.body.address
+  Messages.getReceived(address)
+      .then(received => {
+          Messages.getSent(address)
+              .then(sent => {
+                Messages.getNameFromAddress(address)
+                    .then(name => {
+                      res.json({
+                        name: name[0].name,
+                        received: received[0].count,
+                        sent: sent[0].count
+                      });
+                    })
+              })
+      })
+
+})
+
+// ********** New Search Routes **********
+
+router.post("/search/dev/:page", (req,res) => {
+  const page = req.params.page;
+  const keyword = req.body.keyword;
+  let query = {};
+
+  if (page < 0 || page === 0) {
+    response = {
+      error: true,
+      message: "invalid page number, should start with 1",
+    };
+    return res.json(response);
+  }
+
+  query.skip = 25 * (page - 1);
+  query.limit = 25;
+
+  Messages.searchAll(query, keyword)
+      .then((result) => {
+        res.json(result)
+      })
+      .catch((err) => {
+        res.send(err);
+      });
+})
+
+router.post("/search/:column/:page", (req, res) => {
+  const column = req.params.column;
+  const page = req.params.page;
+  const keyword = req.body.keyword;
+  let query = {};
+
+  if (page < 0 || page === 0) {
+    response = {
+      error: true,
+      message: "invalid page number, should start with 1",
+    };
+    return res.json(response);
+  }
+
+  query.skip = 25 * (page - 1);
+  query.limit = 25;
+
+  Messages.searchByAny(query, column, keyword)
+    .then((result) => {
+      Messages.searchByCount(column, keyword)
+        .then((count) => {
+          res.json({
+            totalCount: count,
+            messages: result,
+          });
+        });
+    })
+    .catch((err) => {
+      res.send(err);
+    });
+});
+
 // ********** THE ROUTES WITH STREAMING **********
 
 // CREATE STREAM FILE
